@@ -266,6 +266,83 @@ facets/ui/
 3. **Services desacoplados**: API client reutilizable
 4. **Stores minimos**: Solo client state real
 
+### Estrategia de Path Aliases
+
+Usamos UN solo alias `@/*` que apunta a la raiz del proyecto. Esto es intencional.
+
+#### Configuracion (tsconfig.json)
+
+```json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  }
+}
+```
+
+#### Por que UN solo alias?
+
+| Alternativa | Problema |
+|-------------|----------|
+| `@components/*`, `@features/*`, `@hooks/*` | Demasiados aliases = confuso, dificil de recordar |
+| `~/` | No es estandar, algunos tools no lo soportan |
+| Sin alias (imports relativos) | `../../../components/ui/button` es ilegible |
+
+**Un solo `@/*` es:**
+- Facil de recordar
+- Consistente en todo el proyecto
+- Soportado por Expo/Metro out of the box
+- Autocomplete funciona perfecto en VS Code
+
+#### Ejemplos de Uso
+
+```typescript
+// CORRECTO - imports absolutos claros
+import { Button } from '@/components/ui/button'
+import { useTransactions } from '@/features/transactions/hooks/use-transactions'
+import { apiClient } from '@/services/api/api-client'
+import { formatCurrency } from '@/lib/utils/format-currency'
+import { colors } from '@/constants/theme'
+import type { Transaction } from '@/types/api'
+
+// INCORRECTO - imports relativos profundos
+import { Button } from '../../../components/ui/button'
+
+// INCORRECTO - import relativo cuando el absoluto es mas claro
+import { formatCurrency } from '../../lib/utils/format-currency'
+```
+
+#### Cuando usar imports relativos
+
+Solo cuando importas algo **del mismo feature/modulo**:
+
+```typescript
+// features/transactions/hooks/use-transactions.ts
+
+// Relativo - mismo feature, carpeta cercana
+import { transactionService } from '../services/transaction-service'
+import type { Transaction } from '../types/transaction-types'
+
+// Absoluto - otro modulo/feature
+import { apiClient } from '@/services/api/api-client'
+import { QUERY_KEYS } from '@/lib/constants/query-keys'
+```
+
+#### Regla Simple
+
+> **Si subis mas de un nivel (`../`), usa `@/`**
+
+```typescript
+// Un nivel arriba - relativo OK
+import { schema } from '../schemas/transaction-schemas'
+
+// Dos o mas niveles - usa absoluto
+import { Button } from '@/components/ui/button'  // NO: ../../components/ui/button
+```
+
 ---
 
 ## 4. Gestion de Estado
