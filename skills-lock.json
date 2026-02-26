@@ -45,6 +45,11 @@
       "source": "expo/skills",
       "sourceType": "github",
       "computedHash": "63a18bc2e07d18313aa9749bbb59c542c9b141424c56bd5514907be276c5bf80"
+    },
+    "zod-4": {
+      "source": "gentleman-programming/gentleman-skills",
+      "sourceType": "github",
+      "computedHash": "a3039d6bed11f795f45e19affdfdf70365f7059fc68ae7d2f2ef89b73c6c2c48"
     }
   }
 }
