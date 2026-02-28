@@ -1,9 +1,10 @@
-import { forwardRef } from "react";
-import { Text, TextInput, View } from "react-native";
+import { forwardRef, useRef, useState } from "react";
+import { Pressable, Text, TextInput, View } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
-import { useAppTheme } from "@/hooks/use-app-theme";
+import { AppIcon } from "@/components/ui/app-icon";
 import { fonts, radius, spacing } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/use-app-theme";
 
 import type { TextInputProps } from "react-native";
 
@@ -13,19 +14,34 @@ interface FormInputProps extends TextInputProps {
 }
 
 export const FormInput = forwardRef<TextInput, FormInputProps>(
-  function FormInput({ label, error, style, ...props }, ref) {
+  function FormInput({ label, error, secureTextEntry, style, ...props }, ref) {
     const { colors, isDark } = useAppTheme();
+    const internalRef = useRef<TextInput>(null);
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+    // Use forwarded ref if provided, otherwise use internal ref
+    const inputRef = (ref as React.RefObject<TextInput>) ?? internalRef;
 
     const hasError = !!error;
+    const isPassword = secureTextEntry !== undefined;
     const borderColor = hasError
       ? "#EF4444"
       : isDark
         ? "rgba(255, 255, 255, 0.12)"
         : "rgba(0, 0, 0, 0.12)";
 
+    const handleContainerPress = () => {
+      inputRef.current?.focus();
+    };
+
+    const togglePasswordVisibility = () => {
+      setIsPasswordVisible((prev) => !prev);
+    };
+
     return (
       <View style={{ gap: spacing.xs }}>
-        <View
+        <Pressable
+          onPress={handleContainerPress}
           style={{
             borderWidth: 1.5,
             borderColor,
@@ -36,34 +52,57 @@ export const FormInput = forwardRef<TextInput, FormInputProps>(
               : "rgba(0, 0, 0, 0.02)",
             paddingHorizontal: spacing.lg,
             paddingVertical: spacing.md,
+            flexDirection: "row",
+            alignItems: "center",
           }}
         >
-          <Text
-            style={{
-              fontSize: fonts.sizes.xs,
-              fontWeight: fonts.weights.medium,
-              color: hasError ? "#EF4444" : colors.textMuted,
-              marginBottom: 2,
-            }}
-          >
-            {label}
-          </Text>
-          <TextInput
-            ref={ref}
-            placeholderTextColor={colors.textMuted}
-            style={[
-              {
-                fontSize: fonts.sizes.md,
+          <View style={{ flex: 1 }}>
+            <Text
+              style={{
+                fontSize: fonts.sizes.xs,
                 fontWeight: fonts.weights.medium,
-                color: colors.text,
-                padding: 0,
-                height: 24,
-              },
-              style,
-            ]}
-            {...props}
-          />
-        </View>
+                color: hasError ? "#EF4444" : colors.textMuted,
+                marginBottom: 2,
+              }}
+            >
+              {label}
+            </Text>
+            <TextInput
+              ref={inputRef}
+              placeholderTextColor={colors.textMuted}
+              secureTextEntry={isPassword ? !isPasswordVisible : undefined}
+              style={[
+                {
+                  fontSize: fonts.sizes.md,
+                  fontWeight: fonts.weights.medium,
+                  color: colors.text,
+                  padding: 0,
+                  height: 24,
+                },
+                style,
+              ]}
+              {...props}
+            />
+          </View>
+
+          {isPassword && (
+            <Pressable
+              onPress={togglePasswordVisibility}
+              hitSlop={12}
+              style={{
+                marginLeft: spacing.sm,
+                padding: spacing.xs,
+              }}
+            >
+              <AppIcon
+                sf={isPasswordVisible ? "eye.slash" : "eye"}
+                material={isPasswordVisible ? "visibility-off" : "visibility"}
+                size={20}
+                color={colors.textMuted}
+              />
+            </Pressable>
+          )}
+        </Pressable>
 
         {hasError && (
           <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(100)}>

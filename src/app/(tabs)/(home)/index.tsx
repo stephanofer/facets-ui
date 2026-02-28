@@ -1,14 +1,15 @@
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
-import * as Haptics from "expo-haptics";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import * as Haptics from "expo-haptics";
+import { router } from "expo-router";
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
-import { useAppTheme } from "@/hooks/use-app-theme";
-import { useUser } from "@/features/auth/hooks/use-user";
-import { useLogout } from "@/features/auth/hooks/use-logout";
-import { useAuthStore } from "@/stores/auth-store";
 import { fonts, radius, spacing } from "@/constants/theme";
+import { useLogout } from "@/features/auth/hooks/use-logout";
+import { useUser } from "@/features/auth/hooks/use-user";
+import { useAppTheme } from "@/hooks/use-app-theme";
+import { useAuthStore } from "@/stores/auth-store";
 
 function ProfileCard({
   label,
@@ -168,6 +169,27 @@ export default function HomeScreen() {
             }}
           >
             Reintentar
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => router.replace("/(auth)/welcome" as never)}
+          style={({ pressed }) => ({
+            paddingHorizontal: spacing.xl,
+            paddingVertical: spacing.md,
+            borderRadius: radius.md,
+            borderCurve: "continuous",
+            transform: [{ scale: pressed ? 0.97 : 1 }],
+            opacity: pressed ? 0.7 : 1,
+          })}
+        >
+          <Text
+            style={{
+              color: colors.textMuted,
+              fontSize: fonts.sizes.sm,
+              fontWeight: fonts.weights.semibold,
+            }}
+          >
+            Volver a welcome
           </Text>
         </Pressable>
       </ScrollView>

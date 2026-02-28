@@ -1,15 +1,24 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSequence,
-  withTiming,
-} from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+    ActivityIndicator,
+    Pressable,
+    Text,
+    TextInput,
+    View,
+} from "react-native";
+import Animated, {
+    FadeIn,
+    FadeOut,
+    useAnimatedStyle,
+    useSharedValue,
+    withRepeat,
+    withSequence,
+    withTiming,
+} from "react-native-reanimated";
 
-import { useAppTheme } from "@/hooks/use-app-theme";
 import { fonts, radius, spacing } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/use-app-theme";
 
 const OTP_LENGTH = 6;
 
@@ -22,21 +31,42 @@ interface OtpInputProps {
 export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
   const { colors, isDark } = useAppTheme();
   const [code, setCode] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const shakeX = useSharedValue(0);
+  const cursorOpacity = useSharedValue(1);
+  const prevErrorRef = useRef(error);
 
-  // Auto-focus on mount
+  // Auto-focus on mount — use InteractionManager for reliability on Android
   useEffect(() => {
-    const timer = setTimeout(() => inputRef.current?.focus(), 300);
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
     return () => clearTimeout(timer);
   }, []);
 
-  // Shake on error
+  // Blinking cursor animation
   useEffect(() => {
-    if (error) {
-      if (process.env.EXPO_OS === "ios") {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      }
+    if (isFocused && code.length < OTP_LENGTH && !disabled) {
+      cursorOpacity.value = withRepeat(
+        withSequence(
+          withTiming(1, { duration: 0 }),
+          withTiming(1, { duration: 500 }),
+          withTiming(0, { duration: 200 }),
+          withTiming(0, { duration: 300 }),
+        ),
+        -1,
+        false,
+      );
+    } else {
+      cursorOpacity.value = 0;
+    }
+  }, [isFocused, code.length, disabled, cursorOpacity]);
+
+  // Shake + clear on error, then re-focus
+  useEffect(() => {
+    if (error && error !== prevErrorRef.current) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       shakeX.value = withSequence(
         withTiming(-8, { duration: 50 }),
         withTiming(8, { duration: 50 }),
@@ -45,50 +75,77 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
         withTiming(0, { duration: 50 }),
       );
       setCode("");
+
+      // Re-focus after error so user can immediately type again
+      setTimeout(() => inputRef.current?.focus(), 300);
     }
+    prevErrorRef.current = error;
   }, [error, shakeX]);
 
   const shakeStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: shakeX.value }],
   }));
 
+  const cursorStyle = useAnimatedStyle(() => ({
+    opacity: cursorOpacity.value,
+  }));
+
   const handleChange = useCallback(
     (text: string) => {
+      if (disabled) return;
+
       // Only allow digits
       const cleaned = text.replace(/\D/g, "").slice(0, OTP_LENGTH);
       setCode(cleaned);
 
+      // Haptic feedback per digit
+      if (cleaned.length > code.length) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
+
       if (cleaned.length === OTP_LENGTH) {
-        if (process.env.EXPO_OS === "ios") {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        }
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        // Dismiss keyboard and submit
+        inputRef.current?.blur();
         onComplete(cleaned);
       }
     },
-    [onComplete],
+    [onComplete, disabled, code.length],
   );
 
   const handlePress = () => {
-    inputRef.current?.focus();
+    if (!disabled) {
+      inputRef.current?.focus();
+    }
   };
 
   return (
     <View style={{ gap: spacing.md }}>
-      {/* Hidden input */}
+      {/* Hidden input — positioned off-screen for better Android compatibility */}
       <TextInput
         ref={inputRef}
         value={code}
         onChangeText={handleChange}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         keyboardType="number-pad"
         textContentType="oneTimeCode"
         autoComplete="one-time-code"
         maxLength={OTP_LENGTH}
         editable={!disabled}
-        style={{ position: "absolute", opacity: 0, height: 0, width: 0 }}
+        caretHidden
+        style={{
+          position: "absolute",
+          opacity: 0,
+          height: 1,
+          width: 1,
+          // Position off-screen to avoid visual artifacts on Android
+          left: -1000,
+        }}
       />
 
       {/* Visual boxes */}
-      <Pressable onPress={handlePress}>
+      <Pressable onPress={handlePress} accessible accessibilityRole="none">
         <Animated.View
           style={[
             {
@@ -101,7 +158,7 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
         >
           {Array.from({ length: OTP_LENGTH }).map((_, index) => {
             const isFilled = index < code.length;
-            const isCurrent = index === code.length;
+            const isCurrent = index === code.length && isFocused && !disabled;
             const digit = code[index] ?? "";
 
             return (
@@ -128,38 +185,101 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
                     ? isDark
                       ? "rgba(255, 255, 255, 0.04)"
                       : "rgba(0, 0, 0, 0.02)"
-                    : "transparent",
+                    : isCurrent
+                      ? isDark
+                        ? "rgba(255, 255, 255, 0.02)"
+                        : "rgba(0, 0, 0, 0.01)"
+                      : "transparent",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
               >
-                <Text
-                  style={{
-                    fontSize: fonts.sizes["2xl"],
-                    fontWeight: fonts.weights.bold,
-                    color: colors.text,
-                    fontVariant: ["tabular-nums"],
-                  }}
-                >
-                  {digit}
-                </Text>
+                {isFilled ? (
+                  <Animated.Text
+                    entering={FadeIn.duration(100)}
+                    style={{
+                      fontSize: fonts.sizes["2xl"],
+                      fontWeight: fonts.weights.bold,
+                      color: colors.text,
+                      fontVariant: ["tabular-nums"],
+                    }}
+                  >
+                    {digit}
+                  </Animated.Text>
+                ) : isCurrent ? (
+                  <Animated.View
+                    style={[
+                      {
+                        width: 2,
+                        height: 24,
+                        backgroundColor: colors.primary,
+                        borderRadius: 1,
+                      },
+                      cursorStyle,
+                    ]}
+                  />
+                ) : null}
               </View>
             );
           })}
         </Animated.View>
       </Pressable>
 
-      {error && (
-        <Text
+      {/* Loading state */}
+      {disabled && (
+        <Animated.View
+          entering={FadeIn.duration(150)}
+          exiting={FadeOut.duration(100)}
           style={{
-            fontSize: fonts.sizes.sm,
-            color: "#EF4444",
-            fontWeight: fonts.weights.medium,
-            textAlign: "center",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: spacing.sm,
           }}
         >
-          {error}
-        </Text>
+          <ActivityIndicator size="small" color={colors.primary} />
+          <Text
+            style={{
+              fontSize: fonts.sizes.sm,
+              color: colors.textMuted,
+              fontWeight: fonts.weights.medium,
+            }}
+          >
+            Verificando...
+          </Text>
+        </Animated.View>
+      )}
+
+      {/* Error message */}
+      {error && !disabled && (
+        <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(100)}>
+          <Text
+            selectable
+            style={{
+              fontSize: fonts.sizes.sm,
+              color: "#EF4444",
+              fontWeight: fonts.weights.medium,
+              textAlign: "center",
+            }}
+          >
+            {error}
+          </Text>
+        </Animated.View>
+      )}
+
+      {/* Tap to focus hint — only when not focused and no code entered */}
+      {!isFocused && code.length === 0 && !disabled && !error && (
+        <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(100)}>
+          <Text
+            style={{
+              fontSize: fonts.sizes.xs,
+              color: colors.textMuted,
+              textAlign: "center",
+            }}
+          >
+            Tocá para ingresar el código
+          </Text>
+        </Animated.View>
       )}
     </View>
   );

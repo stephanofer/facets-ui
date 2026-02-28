@@ -1,16 +1,16 @@
-import { useRef, useState } from "react";
-import { Text, TextInput } from "react-native";
-import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
+import { useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { Text, TextInput } from "react-native";
 
-import { AuthScreenLayout } from "@/features/auth/components/auth-screen-layout";
 import { FormInput } from "@/components/ui/form-input";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { loginSchema } from "@/features/auth/schemas/auth-schemas";
-import { useLogin } from "@/features/auth/hooks/use-login";
-import { ApiError } from "@/lib/api-client";
 import { fonts, spacing } from "@/constants/theme";
+import { AuthScreenLayout } from "@/features/auth/components/auth-screen-layout";
+import { useLogin } from "@/features/auth/hooks/use-login";
+import { loginSchema } from "@/features/auth/schemas/auth-schemas";
+import { ApiError } from "@/lib/api-client";
 
 import type { LoginRequest } from "@/features/auth/types";
 
@@ -33,7 +33,12 @@ export default function LoginScreen() {
     setServerError("");
 
     login.mutate(data, {
-      // onSuccess: auth store is updated by the hook → root layout redirects to tabs
+      onSuccess: () => {
+        // Belt-and-suspenders: the root layout also watches authStatus,
+        // but explicitly navigate here to avoid race conditions where
+        // the root layout effect doesn't fire in time.
+        router.replace("/(tabs)/(home)" as never);
+      },
       onError: (error) => {
         if (error instanceof ApiError) {
           switch (error.code) {

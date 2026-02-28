@@ -1,11 +1,15 @@
-import { Pressable, Text, View } from "react-native";
+import * as Haptics from "expo-haptics";
+import { Image } from "expo-image";
+import { Linking, Pressable, Text, View } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Image } from "expo-image";
-import * as Haptics from "expo-haptics";
 
-import { useAppTheme } from "@/hooks/use-app-theme";
 import { fonts, radius, spacing } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/use-app-theme";
+
+// TODO: Replace with real URLs before production launch
+const PRIVACY_POLICY_URL = "https://example.com/privacy-policy";
+const TERMS_OF_SERVICE_URL = "https://example.com/terms-of-service";
 
 interface AuthWelcomeProps {
   onCreateAccount: () => void;
@@ -187,7 +191,7 @@ export function AuthWelcome({ onCreateAccount, onLogin }: AuthWelcomeProps) {
             paddingTop: spacing.sm,
           }}
         >
-          <Pressable hitSlop={8}>
+          <Pressable hitSlop={8} onPress={() => Linking.openURL(PRIVACY_POLICY_URL)}>
             <Text
               style={{
                 color: colors.textMuted,
@@ -198,7 +202,7 @@ export function AuthWelcome({ onCreateAccount, onLogin }: AuthWelcomeProps) {
               Política de Privacidad
             </Text>
           </Pressable>
-          <Pressable hitSlop={8}>
+          <Pressable hitSlop={8} onPress={() => Linking.openURL(TERMS_OF_SERVICE_URL)}>
             <Text
               style={{
                 color: colors.textMuted,

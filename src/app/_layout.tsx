@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { ActivityIndicator, View } from "react-native";
 import {
   DarkTheme,
   DefaultTheme,
@@ -8,6 +7,7 @@ import {
 import { QueryClientProvider } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { Stack } from "expo-router/stack";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
@@ -16,6 +16,10 @@ import { useAppTheme } from "@/hooks/use-app-theme";
 import { queryClient } from "@/lib/query-client";
 import { useAuthStore } from "@/stores/auth-store";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+
+// Keep the native splash screen visible until we know the auth state.
+// This MUST be called at module level (top of file), before any component renders.
+SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
   const { isDark, colors: themeColors } = useAppTheme();
@@ -30,7 +34,8 @@ function RootNavigator() {
     initialize();
   }, [initialize]);
 
-  // Navigate based on combined onboarding + auth state
+  // Navigate based on combined onboarding + auth state,
+  // then hide the splash screen once we know where to go.
   useEffect(() => {
     // Don't navigate until auth is resolved
     if (authStatus === "loading") return;
@@ -42,6 +47,10 @@ function RootNavigator() {
     } else if (authStatus === "authenticated") {
       router.replace("/(tabs)/(home)" as never);
     }
+
+    // Auth state is resolved and navigation has been triggered.
+    // Hide the splash screen so the correct route is revealed.
+    SplashScreen.hideAsync();
   }, [hasCompletedOnboarding, authStatus]);
 
   const navigationTheme = isDark
@@ -68,21 +77,10 @@ function RootNavigator() {
         },
       };
 
-  // Show nothing while loading — the splash screen covers this
-  // This PREVENTS flashing any screen before we know the state
+  // Return nothing while loading — the native splash screen stays visible
+  // covering this completely. No ActivityIndicator needed.
   if (authStatus === "loading") {
-    return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: themeColors.background,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <ActivityIndicator color={themeColors.primary} size="large" />
-      </View>
-    );
+    return null;
   }
 
   return (

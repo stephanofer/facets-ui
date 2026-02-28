@@ -1,11 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { logoutUser } from "@/features/auth/api/auth-api";
-import { useAuthStore } from "@/stores/auth-store";
 import { tokenStorage } from "@/lib/api-client";
+import { useAuthStore } from "@/stores/auth-store";
+import { useRegisterFlowStore } from "@/stores/register-flow-store";
 
 export function useLogout() {
   const logout = useAuthStore((s) => s.logout);
+  const resetRegisterFlow = useRegisterFlowStore((s) => s.reset);
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -18,6 +20,7 @@ export function useLogout() {
     },
     onSettled: async () => {
       await logout();
+      resetRegisterFlow();
       queryClient.clear();
     },
   });
