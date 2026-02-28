@@ -4,13 +4,11 @@ import { AuthWelcome } from "@/features/auth/components/auth-welcome";
 
 export default function WelcomeScreen() {
   const handleCreateAccount = () => {
-    // TODO: Navigate to register screen
-    router.replace("/(tabs)/(home)" as never);
+    router.push("/(auth)/register-name" as never);
   };
 
   const handleLogin = () => {
-    // TODO: Navigate to login screen
-    router.replace("/(tabs)/(home)" as never);
+    router.push("/(auth)/login" as never);
   };
 
   return (

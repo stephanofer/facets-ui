@@ -1,8 +1,7 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import { storage } from "@/lib/storage";
+import { persist } from "zustand/middleware";
 
-import type { StateStorage } from "zustand/middleware";
+import { zustandStorage } from "@/lib/storage";
 
 type ColorSchemePreference = "system" | "light" | "dark";
 
@@ -10,19 +9,6 @@ interface UIState {
   colorSchemePreference: ColorSchemePreference;
   setColorSchemePreference: (preference: ColorSchemePreference) => void;
 }
-
-const zustandStorage: StateStorage = {
-  setItem: (name, value) => {
-    storage.set(name, value);
-  },
-  getItem: (name) => {
-    const value = storage.getString(name);
-    return value ?? null;
-  },
-  removeItem: (name) => {
-    storage.remove(name);
-  },
-};
 
 export const useUIStore = create<UIState>()(
   persist(
@@ -33,7 +19,7 @@ export const useUIStore = create<UIState>()(
     }),
     {
       name: "ui-store",
-      storage: createJSONStorage(() => zustandStorage),
+      storage: zustandStorage,
     },
   ),
 );

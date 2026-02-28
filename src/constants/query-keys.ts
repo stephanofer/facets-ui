@@ -1,4 +1,8 @@
 export const queryKeys = {
+  auth: {
+    all: ["auth"] as const,
+    me: () => [...queryKeys.auth.all, "me"] as const,
+  },
   transactions: {
     all: ["transactions"] as const,
     lists: () => [...queryKeys.transactions.all, "list"] as const,
