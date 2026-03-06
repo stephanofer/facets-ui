@@ -52,6 +52,31 @@
           },
           "androidIntentFilters": ["text/*", "image/*"]
         }
+      ],
+      "expo-image",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Facets accede a tu galería para que puedas guardar y organizar tus imágenes favoritas.",
+          "cameraPermission": "Facets usa tu cámara para capturar nuevas imágenes directamente en tu colección.",
+          "microphonePermission": false,
+          "colors": {
+            "cropToolbarColor": "#208AEF",
+            "cropToolbarIconColor": "#FFFFFF",
+            "cropToolbarActionTextColor": "#FFFFFF",
+            "cropBackButtonIconColor": "#FFFFFF",
+            "cropBackgroundColor": "#E6F4FE"
+          },
+          "dark": {
+            "colors": {
+              "cropToolbarColor": "#1a6fc4",
+              "cropToolbarIconColor": "#FFFFFF",
+              "cropToolbarActionTextColor": "#FFFFFF",
+              "cropBackButtonIconColor": "#FFFFFF",
+              "cropBackgroundColor": "#0d1117"
+            }
+          }
+        }
       ]
     ],
     "experiments": {
