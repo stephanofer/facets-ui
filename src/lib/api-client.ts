@@ -139,5 +139,9 @@ export function apiClientNoAuth<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  return request<T>(path, { ...options, headers: { ...options.headers } }, false);
+  return request<T>(
+    path,
+    { ...options, headers: { ...options.headers } },
+    false,
+  );
 }

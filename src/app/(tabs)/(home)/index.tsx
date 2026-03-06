@@ -2,6 +2,8 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
+import { useShareIntentContext } from "expo-share-intent";
+import { useEffect } from "react";
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
@@ -101,6 +103,14 @@ export default function HomeScreen() {
   const { data: user, isLoading, error, refetch } = useUser();
   const localUser = useAuthStore((s) => s.user);
   const logout = useLogout();
+  const { hasShareIntent } = useShareIntentContext();
+
+  // Navigate to share intent debug screen when content is shared
+  useEffect(() => {
+    if (hasShareIntent) {
+      router.push("/(tabs)/(home)/share-intent-debug" as never);
+    }
+  }, [hasShareIntent]);
 
   // Use local cached user while query loads
   const displayUser = user ?? localUser;

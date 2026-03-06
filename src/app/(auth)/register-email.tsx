@@ -1,10 +1,10 @@
-import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
+import { Controller, useForm } from "react-hook-form";
 
-import { AuthScreenLayout } from "@/features/auth/components/auth-screen-layout";
 import { FormInput } from "@/components/ui/form-input";
 import { PrimaryButton } from "@/components/ui/primary-button";
+import { AuthScreenLayout } from "@/features/auth/components/auth-screen-layout";
 import { registerEmailSchema } from "@/features/auth/schemas/auth-schemas";
 import { useRegisterFlowStore } from "@/stores/register-flow-store";
 

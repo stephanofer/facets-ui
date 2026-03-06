@@ -1,17 +1,17 @@
-import { useRef, useState } from "react";
-import { Text, TextInput } from "react-native";
-import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
+import { useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { Text, TextInput } from "react-native";
 
-import { AuthScreenLayout } from "@/features/auth/components/auth-screen-layout";
 import { FormInput } from "@/components/ui/form-input";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { registerPasswordSchema } from "@/features/auth/schemas/auth-schemas";
-import { useRegisterFlowStore } from "@/stores/register-flow-store";
-import { useRegister } from "@/features/auth/hooks/use-register";
-import { ApiError } from "@/lib/api-client";
 import { fonts, spacing } from "@/constants/theme";
+import { AuthScreenLayout } from "@/features/auth/components/auth-screen-layout";
+import { useRegister } from "@/features/auth/hooks/use-register";
+import { registerPasswordSchema } from "@/features/auth/schemas/auth-schemas";
+import { ApiError } from "@/lib/api-client";
+import { useRegisterFlowStore } from "@/stores/register-flow-store";
 
 import type { RegisterPasswordForm } from "@/features/auth/types";
 

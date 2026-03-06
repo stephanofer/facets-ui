@@ -18,7 +18,13 @@ interface AppIconProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export function AppIcon({ sf, material, size = 24, color, style }: AppIconProps) {
+export function AppIcon({
+  sf,
+  material,
+  size = 24,
+  color,
+  style,
+}: AppIconProps) {
   if (process.env.EXPO_OS === "ios") {
     return (
       <SymbolView
@@ -30,11 +36,5 @@ export function AppIcon({ sf, material, size = 24, color, style }: AppIconProps)
     );
   }
 
-  return (
-    <MaterialIcons
-      name={material}
-      size={size}
-      color={color}
-    />
-  );
+  return <MaterialIcons name={material} size={size} color={color} />;
 }

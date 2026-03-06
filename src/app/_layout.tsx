@@ -7,6 +7,7 @@ import {
 import { QueryClientProvider } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { Stack } from "expo-router/stack";
+import { ShareIntentProvider } from "expo-share-intent";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -114,10 +115,12 @@ function RootNavigator() {
 
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
-        <RootNavigator />
-      </QueryClientProvider>
-    </GestureHandlerRootView>
+    <ShareIntentProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <QueryClientProvider client={queryClient}>
+          <RootNavigator />
+        </QueryClientProvider>
+      </GestureHandlerRootView>
+    </ShareIntentProvider>
   );
 }
