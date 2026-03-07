@@ -381,6 +381,84 @@ React Hook Form + Zod resolver. One pattern everywhere.
 
 ---
 
+## Typography
+
+Single font family: **Satoshi** (Regular, Medium, Bold). Embedded via `expo-font` config plugin — available immediately at app start, no `useFonts` hook needed.
+
+### Rules
+
+- ALWAYS use the `Typography` component from `@/components/ui/typography`. NEVER use raw `<Text>` for visible user-facing text.
+- NEVER use `useFonts` hook. Fonts are embedded natively via config plugin.
+- NEVER use `fontWeight` style prop to control boldness. Use `fontFamily` directly (`Satoshi-Bold`, not `fontWeight: '700'`).
+- Font family names are **identical on iOS and Android** — no `Platform.select` needed.
+- For `TextInput`, apply `fontFamily` from `fontFamily` constant in `@/constants/theme`.
+- For Reanimated animations, use `AnimatedTypography` from the same file.
+
+### Font Families
+
+| Constant               | Value              | Use                       |
+| ---------------------- | ------------------ | ------------------------- |
+| `fontFamily.regular`   | `Satoshi-Regular`  | Body text, captions       |
+| `fontFamily.medium`    | `Satoshi-Medium`   | Labels, emphasized text   |
+| `fontFamily.bold`      | `Satoshi-Bold`     | Headings, amounts, CTAs   |
+
+### Variant Scale
+
+| Variant        | Size | Weight  | Use case                       |
+| -------------- | ---- | ------- | ------------------------------ |
+| `h1`           | 30   | Bold    | Screen titles, hero numbers    |
+| `h2`           | 24   | Bold    | Section headers                |
+| `h3`           | 20   | Bold    | Card titles, subsections       |
+| `subtitle`     | 18   | Medium  | Subtitles, lead text           |
+| `body`         | 16   | Regular | Default body text              |
+| `bodyMedium`   | 16   | Medium  | Emphasized body text           |
+| `label`        | 14   | Medium  | Form labels, nav items         |
+| `caption`      | 14   | Regular | Secondary descriptions         |
+| `small`        | 12   | Medium  | Badges, tags, timestamps       |
+
+### Use `Typography` like this
+
+```tsx
+<Typography variant="h1">Screen Title</Typography>
+<Typography variant="caption" color="textMuted">Secondary info</Typography>
+<Typography variant="body" weight="bold">Overridden weight</Typography>
+<Typography variant="h2" align="center">Centered</Typography>
+<Typography color="#EF4444">Raw color</Typography>
+```
+
+### TextInput
+
+Apply `fontFamily` directly from the constant:
+
+```tsx
+import { fontFamily } from "@/constants/theme";
+
+<TextInput style={{ fontFamily: fontFamily.medium, fontSize: 16 }} />
+```
+
+### Animated Text
+
+Use `AnimatedTypography` for Reanimated entering/exiting/layout animations:
+
+```tsx
+import { AnimatedTypography } from "@/components/ui/typography";
+
+<AnimatedTypography variant="h2" entering={FadeIn.duration(200)}>
+  Animated Title
+</AnimatedTypography>
+```
+
+### Do / Don't
+
+- DO use `<Typography variant="body">` for all visible text
+- DO use `fontFamily` constant for `TextInput` styles
+- DO use `AnimatedTypography` for animated text
+- DON'T use raw `<Text>` for user-facing text
+- DON'T use `fontWeight` to control font boldness — use `weight` prop or `fontFamily` constant
+- DON'T use `useFonts` hook — fonts are embedded via config plugin
+
+---
+
 ## Iconography
 
 Single icon library across the app: **Phosphor Icons** (`phosphor-react-native`).

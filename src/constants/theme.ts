@@ -51,6 +51,12 @@ export const radius = {
   pill: 9999,
 } as const;
 
+export const fontFamily = {
+  regular: "Satoshi-Regular",
+  medium: "Satoshi-Medium",
+  bold: "Satoshi-Bold",
+} as const;
+
 export const fonts = {
   sizes: {
     xs: 12,
@@ -74,4 +80,7 @@ export type ThemeColors = {
   [K in keyof typeof colors.light]: string;
 };
 export type SemanticColors = typeof semanticColors;
+export type SemanticColorKey = keyof SemanticColors;
 export type ThemeColorKey = keyof ThemeColors;
+export type FontFamily = typeof fontFamily;
+export type FontFamilyKey = keyof FontFamily;
