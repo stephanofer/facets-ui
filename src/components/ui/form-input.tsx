@@ -1,9 +1,10 @@
 import { forwardRef, useRef, useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Pressable, TextInput, View } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 import { Icon } from "@/components/ui/icon";
-import { fonts, radius, spacing } from "@/constants/theme";
+import { Typography } from "@/components/ui/typography";
+import { fontFamily, radius, spacing } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 
 import type { TextInputProps } from "react-native";
@@ -57,24 +58,21 @@ export const FormInput = forwardRef<TextInput, FormInputProps>(
           }}
         >
           <View style={{ flex: 1 }}>
-            <Text
-              style={{
-                fontSize: fonts.sizes.xs,
-                fontWeight: fonts.weights.medium,
-                color: hasError ? "#EF4444" : colors.textMuted,
-                marginBottom: 2,
-              }}
+            <Typography
+              variant="small"
+              color={hasError ? "#EF4444" : "textMuted"}
+              style={{ marginBottom: 2 }}
             >
               {label}
-            </Text>
+            </Typography>
             <TextInput
               ref={inputRef}
               placeholderTextColor={colors.textMuted}
               secureTextEntry={isPassword ? !isPasswordVisible : undefined}
               style={[
                 {
-                  fontSize: fonts.sizes.md,
-                  fontWeight: fonts.weights.medium,
+                  fontFamily: fontFamily.medium,
+                  fontSize: 16,
                   color: colors.text,
                   padding: 0,
                   height: 24,
@@ -105,16 +103,13 @@ export const FormInput = forwardRef<TextInput, FormInputProps>(
 
         {hasError && (
           <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(100)}>
-            <Text
-              style={{
-                fontSize: fonts.sizes.xs,
-                color: "#EF4444",
-                fontWeight: fonts.weights.medium,
-                paddingLeft: spacing.xs,
-              }}
+            <Typography
+              variant="small"
+              color="#EF4444"
+              style={{ paddingLeft: spacing.xs }}
             >
               {error}
-            </Text>
+            </Typography>
           </Animated.View>
         )}
       </View>

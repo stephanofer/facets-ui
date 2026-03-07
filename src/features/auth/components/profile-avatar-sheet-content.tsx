@@ -1,11 +1,12 @@
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Alert, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Icon } from "@/components/ui/icon";
-import { fonts, radius, spacing } from "@/constants/theme";
+import { Typography } from "@/components/ui/typography";
+import { radius, spacing } from "@/constants/theme";
 import { ApiError } from "@/lib/api-client";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import {
@@ -117,15 +118,13 @@ function SheetAction({
         size={24}
         color={destructive ? "#BE123C" : colors.textMuted}
       />
-      <Text
-        style={{
-          color: destructive ? "#BE123C" : colors.text,
-          fontSize: fonts.sizes.xl,
-          fontWeight: fonts.weights.medium,
-        }}
+      <Typography
+        variant="h3"
+        color={destructive ? "#BE123C" : "text"}
+        weight="medium"
       >
         {label}
-      </Text>
+      </Typography>
     </Pressable>
   );
 }
@@ -211,17 +210,14 @@ export function ProfileAvatarSheetContent({
         }}
       >
         <View style={{ flex: 1 }} />
-        <Text
-          style={{
-            color: colors.text,
-            fontSize: fonts.sizes["3xl"],
-            fontWeight: fonts.weights.bold,
-            textAlign: "center",
-            flex: 2,
-          }}
+        <Typography
+          variant="h1"
+          color="text"
+          align="center"
+          style={{ flex: 2 }}
         >
           Edición de foto
-        </Text>
+        </Typography>
         <Pressable
           onPress={closeSheet}
           hitSlop={12}

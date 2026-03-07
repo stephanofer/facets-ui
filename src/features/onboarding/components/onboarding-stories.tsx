@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Pressable, Text, useWindowDimensions, View } from "react-native";
+import { Pressable, useWindowDimensions, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   FadeIn,
@@ -20,7 +20,8 @@ import {
   ONBOARDING_SLIDES,
   type OnboardingSlide,
 } from "@/features/onboarding/constants/onboarding-slides";
-import { colors, fonts, radius, spacing } from "@/constants/theme";
+import { Typography } from "@/components/ui/typography";
+import { colors, radius, spacing } from "@/constants/theme";
 
 const SPRING_CONFIG = { damping: 20, stiffness: 300 };
 
@@ -174,16 +175,14 @@ export function OnboardingStories({ onComplete }: OnboardingStoriesProps) {
           justifyContent: "center",
         }}
       >
-        <Text
-          style={{
-            color: "#FFFFFF",
-            fontSize: 16,
-            fontWeight: fonts.weights.semibold,
-            lineHeight: 18,
-          }}
+        <Typography
+          variant="bodyMedium"
+          color="#FFFFFF"
+          weight="bold"
+          style={{ lineHeight: 18 }}
         >
           ✕
-        </Text>
+        </Typography>
       </Pressable>
 
       {/* Main content with gesture handling */}
@@ -258,30 +257,28 @@ function SlideContent({
           paddingHorizontal: spacing.lg,
         }}
       >
-        <Text
+        <Typography
+          variant="h1"
+          color="#FFFFFF"
           selectable
           style={{
-            color: "#FFFFFF",
-            fontSize: fonts.sizes["3xl"],
-            fontWeight: fonts.weights.bold,
             textAlign: "center",
             letterSpacing: -0.5,
           }}
         >
           {slide.title}
-        </Text>
-        <Text
+        </Typography>
+        <Typography
+          variant="subtitle"
+          color="rgba(255, 255, 255, 0.7)"
           selectable
           style={{
-            color: "rgba(255, 255, 255, 0.7)",
-            fontSize: fonts.sizes.lg,
-            fontWeight: fonts.weights.regular,
             textAlign: "center",
             lineHeight: 26,
           }}
         >
           {slide.description}
-        </Text>
+        </Typography>
       </Animated.View>
 
       {/* CTA Button — always visible, but changes emphasis on last slide */}
@@ -314,16 +311,14 @@ function SlideContent({
             transform: [{ scale: pressed ? 0.97 : 1 }],
           })}
         >
-          <Text
-            style={{
-              color: isLast ? colors.dark.background : "#FFFFFF",
-              fontSize: fonts.sizes.lg,
-              fontWeight: fonts.weights.semibold,
-              letterSpacing: 0.3,
-            }}
+          <Typography
+            variant="subtitle"
+            color={isLast ? colors.dark.background : "#FFFFFF"}
+            weight="bold"
+            style={{ letterSpacing: 0.3 }}
           >
             Comenzar
-          </Text>
+          </Typography>
         </Pressable>
       </Animated.View>
     </Animated.View>

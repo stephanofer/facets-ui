@@ -4,7 +4,6 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Pressable,
-  Text,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
@@ -12,7 +11,8 @@ import Animated, { FadeIn } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Icon } from "@/components/ui/icon";
-import { fonts, spacing } from "@/constants/theme";
+import { Typography } from "@/components/ui/typography";
+import { spacing } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 
 import type { ReactNode } from "react";
@@ -96,27 +96,13 @@ export function AuthScreenLayout({
                   paddingBottom: spacing.xl,
                 }}
               >
-                <Text
-                  style={{
-                    fontSize: fonts.sizes["2xl"],
-                    fontWeight: fonts.weights.bold,
-                    color: colors.text,
-                    letterSpacing: -0.3,
-                  }}
-                >
+                <Typography variant="h2" color="text" style={{ letterSpacing: -0.3 }}>
                   {title}
-                </Text>
+                </Typography>
                 {subtitle && (
-                  <Text
-                    style={{
-                      fontSize: fonts.sizes.sm,
-                      fontWeight: fonts.weights.regular,
-                      color: colors.textMuted,
-                      lineHeight: 20,
-                    }}
-                  >
+                  <Typography variant="caption" color="textMuted" style={{ lineHeight: 20 }}>
                     {subtitle}
-                  </Text>
+                  </Typography>
                 )}
               </View>
 

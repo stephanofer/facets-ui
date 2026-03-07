@@ -4,11 +4,12 @@ import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { useShareIntentContext } from "expo-share-intent";
 import { useEffect } from "react";
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { fonts, radius, spacing } from "@/constants/theme";
+import { Typography } from "@/components/ui/typography";
+import { radius, spacing } from "@/constants/theme";
 import { HomeTopBar } from "@/features/auth/components/home-top-bar";
 import { useLogout } from "@/features/auth/hooks/use-logout";
 import { useUser } from "@/features/auth/hooks/use-user";
@@ -42,27 +43,21 @@ function ProfileCard({
         borderColor: isDark ? colors.border : "transparent",
       }}
     >
-      <Text
-        style={{
-          fontSize: fonts.sizes.xs,
-          fontWeight: fonts.weights.medium,
-          color: colors.textMuted,
-          textTransform: "uppercase",
-          letterSpacing: 0.5,
-        }}
+      <Typography
+        variant="small"
+        color="textMuted"
+        style={{ textTransform: "uppercase", letterSpacing: 0.5 }}
       >
         {label}
-      </Text>
-      <Text
+      </Typography>
+      <Typography
+        variant="body"
+        color="text"
+        weight="bold"
         selectable
-        style={{
-          fontSize: fonts.sizes.md,
-          fontWeight: fonts.weights.semibold,
-          color: colors.text,
-        }}
       >
         {value}
-      </Text>
+      </Typography>
     </Animated.View>
   );
 }
@@ -87,15 +82,9 @@ function StatusBadge({ status }: { status: string }) {
         alignSelf: "flex-start",
       }}
     >
-      <Text
-        style={{
-          fontSize: fonts.sizes.xs,
-          fontWeight: fonts.weights.semibold,
-          color: config.text,
-        }}
-      >
+      <Typography variant="small" color={config.text} weight="bold">
         {config.label}
-      </Text>
+      </Typography>
     </View>
   );
 }
@@ -154,15 +143,9 @@ export default function HomeScreen() {
           gap: spacing.lg,
         }}
       >
-        <Text
-          style={{
-            color: colors.textMuted,
-            fontSize: fonts.sizes.md,
-            textAlign: "center",
-          }}
-        >
+        <Typography variant="body" color="textMuted" align="center">
           No pudimos cargar tu perfil.
-        </Text>
+        </Typography>
         <Pressable
           onPress={() => refetch()}
           style={({ pressed }) => ({
@@ -174,15 +157,9 @@ export default function HomeScreen() {
             transform: [{ scale: pressed ? 0.97 : 1 }],
           })}
         >
-          <Text
-            style={{
-              color: "#FFFFFF",
-              fontSize: fonts.sizes.md,
-              fontWeight: fonts.weights.semibold,
-            }}
-          >
+          <Typography variant="bodyMedium" color="#FFFFFF" weight="bold">
             Reintentar
-          </Text>
+          </Typography>
         </Pressable>
         <Pressable
           onPress={() => router.replace("/(auth)/welcome" as never)}
@@ -195,15 +172,9 @@ export default function HomeScreen() {
             opacity: pressed ? 0.7 : 1,
           })}
         >
-          <Text
-            style={{
-              color: colors.textMuted,
-              fontSize: fonts.sizes.sm,
-              fontWeight: fonts.weights.semibold,
-            }}
-          >
+          <Typography variant="label" color="textMuted" weight="bold">
             Volver a welcome
-          </Text>
+          </Typography>
         </Pressable>
       </ScrollView>
     );
@@ -236,29 +207,17 @@ export default function HomeScreen() {
       <Animated.View entering={FadeInDown.duration(200).delay(40)} style={{ gap: spacing.xs }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
           <StatusBadge status={displayUser?.status ?? "ACTIVE"} />
-          <Text
-            style={{
-              fontSize: fonts.sizes.sm,
-              color: colors.textMuted,
-              fontWeight: fonts.weights.medium,
-            }}
-          >
+          <Typography variant="label" color="textMuted">
             Plan {displayUser?.plan.name}
-          </Text>
+          </Typography>
         </View>
       </Animated.View>
 
       {/* Profile info cards */}
       <View style={{ gap: spacing.md }}>
-        <Text
-          style={{
-            fontSize: fonts.sizes.lg,
-            fontWeight: fonts.weights.semibold,
-            color: colors.text,
-          }}
-        >
+        <Typography variant="subtitle" color="text" weight="bold">
           Tu perfil
-        </Text>
+        </Typography>
 
         <ProfileCard label="Nombre completo" value={`${displayUser?.firstName} ${displayUser?.lastName}`} delay={50} />
         <ProfileCard label="Email" value={displayUser?.email ?? "—"} delay={100} />
@@ -287,15 +246,9 @@ export default function HomeScreen() {
             transform: [{ scale: pressed ? 0.97 : 1 }],
           })}
         >
-          <Text
-            style={{
-              color: "#EF4444",
-              fontSize: fonts.sizes.md,
-              fontWeight: fonts.weights.semibold,
-            }}
-          >
+          <Typography variant="bodyMedium" color="#EF4444" weight="bold">
             {logout.isPending ? "Cerrando sesión..." : "Cerrar sesión"}
-          </Text>
+          </Typography>
         </Pressable>
       </Animated.View>
 

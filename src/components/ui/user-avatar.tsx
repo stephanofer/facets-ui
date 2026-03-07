@@ -1,7 +1,7 @@
 import { Image } from "expo-image";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 
-import { fonts } from "@/constants/theme";
+import { Typography } from "@/components/ui/typography";
 import { useAppTheme } from "@/hooks/use-app-theme";
 
 interface UserAvatarProps {
@@ -50,15 +50,13 @@ export function UserAvatar({ size, name, uri }: UserAvatarProps) {
         borderCurve: "continuous",
       }}
     >
-      <Text
-        style={{
-          fontSize: size * 0.34,
-          fontWeight: fonts.weights.bold,
-          color: colors.text,
-        }}
+      <Typography
+        variant="h3"
+        color="text"
+        style={{ fontSize: size * 0.34, lineHeight: size * 0.4 }}
       >
         {initials || "U"}
-      </Text>
+      </Typography>
     </View>
   );
 }

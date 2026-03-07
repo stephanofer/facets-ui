@@ -1,11 +1,12 @@
 import * as Haptics from "expo-haptics";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, View } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 import { OtpInput } from "@/components/ui/otp-input";
-import { fonts, spacing } from "@/constants/theme";
+import { Typography } from "@/components/ui/typography";
+import { spacing } from "@/constants/theme";
 import { AuthScreenLayout } from "@/features/auth/components/auth-screen-layout";
 import { useResendVerification } from "@/features/auth/hooks/use-resend-verification";
 import { useVerifyEmail } from "@/features/auth/hooks/use-verify-email";
@@ -123,16 +124,13 @@ export default function VerifyEmailScreen() {
         }}
       >
         {cooldown > 0 ? (
-          <Text
-            style={{
-              fontSize: fonts.sizes.sm,
-              color: colors.textMuted,
-              fontWeight: fonts.weights.medium,
-              fontVariant: ["tabular-nums"],
-            }}
+          <Typography
+            variant="label"
+            color="textMuted"
+            style={{ fontVariant: ["tabular-nums"] }}
           >
             Reenviar código en {cooldown}s
-          </Text>
+          </Typography>
         ) : (
           <Pressable
             onPress={handleResend}
@@ -143,26 +141,14 @@ export default function VerifyEmailScreen() {
             {resendVerification.isPending ? (
               <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
                 <ActivityIndicator size="small" color={colors.primary} />
-                <Text
-                  style={{
-                    fontSize: fonts.sizes.sm,
-                    color: colors.primary,
-                    fontWeight: fonts.weights.semibold,
-                  }}
-                >
+                <Typography variant="label" color="primary" weight="bold">
                   Enviando...
-                </Text>
+                </Typography>
               </View>
             ) : (
-              <Text
-                style={{
-                  fontSize: fonts.sizes.sm,
-                  color: colors.primary,
-                  fontWeight: fonts.weights.semibold,
-                }}
-              >
+              <Typography variant="label" color="primary" weight="bold">
                 Reenviar código
-              </Text>
+              </Typography>
             )}
           </Pressable>
         )}
@@ -170,15 +156,9 @@ export default function VerifyEmailScreen() {
         {/* Resend success confirmation */}
         {resendSuccess && (
           <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(200)}>
-            <Text
-              style={{
-                fontSize: fonts.sizes.xs,
-                color: "#22C55E",
-                fontWeight: fonts.weights.medium,
-              }}
-            >
+            <Typography variant="small" color="#22C55E">
               ¡Código reenviado!
-            </Text>
+            </Typography>
           </Animated.View>
         )}
       </View>

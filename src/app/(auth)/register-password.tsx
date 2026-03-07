@@ -2,11 +2,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Text, TextInput } from "react-native";
+import { TextInput } from "react-native";
 
 import { FormInput } from "@/components/ui/form-input";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { fonts, spacing } from "@/constants/theme";
+import { Typography } from "@/components/ui/typography";
+import { spacing } from "@/constants/theme";
 import { AuthScreenLayout } from "@/features/auth/components/auth-screen-layout";
 import { useRegister } from "@/features/auth/hooks/use-register";
 import { registerPasswordSchema } from "@/features/auth/schemas/auth-schemas";
@@ -131,18 +132,15 @@ export default function RegisterPasswordScreen() {
       />
 
       {serverError !== "" && (
-        <Text
+        <Typography
+          variant="label"
+          color="#EF4444"
           selectable
-          style={{
-            fontSize: fonts.sizes.sm,
-            color: "#EF4444",
-            fontWeight: fonts.weights.medium,
-            textAlign: "center",
-            paddingTop: spacing.sm,
-          }}
+          align="center"
+          style={{ paddingTop: spacing.sm }}
         >
           {serverError}
-        </Text>
+        </Typography>
       )}
     </AuthScreenLayout>
   );

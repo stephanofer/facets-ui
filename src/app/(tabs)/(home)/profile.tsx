@@ -1,13 +1,14 @@
 import * as Haptics from "expo-haptics";
 import { Link } from "expo-router";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AdaptiveGlassView } from "@/components/ui/adaptive-glass-view";
 import { Icon } from "@/components/ui/icon";
+import { Typography } from "@/components/ui/typography";
 import { UserAvatar } from "@/components/ui/user-avatar";
-import { fonts, radius, spacing } from "@/constants/theme";
+import { radius, spacing } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useUser } from "@/features/auth/hooks/use-user";
 import { useAuthStore } from "@/stores/auth-store";
@@ -28,27 +29,21 @@ function ProfileInfoRow({ label, value }: { label: string; value: string }) {
         boxShadow: isDark ? undefined : "0 10px 30px rgba(15, 23, 42, 0.06)",
       }}
     >
-      <Text
-        style={{
-          color: colors.textMuted,
-          fontSize: fonts.sizes.xs,
-          fontWeight: fonts.weights.medium,
-          textTransform: "uppercase",
-          letterSpacing: 0.6,
-        }}
+      <Typography
+        variant="small"
+        color="textMuted"
+        style={{ textTransform: "uppercase", letterSpacing: 0.6 }}
       >
         {label}
-      </Text>
-      <Text
+      </Typography>
+      <Typography
+        variant="bodyMedium"
+        color="text"
+        weight="bold"
         selectable
-        style={{
-          color: colors.text,
-          fontSize: fonts.sizes.md,
-          fontWeight: fonts.weights.semibold,
-        }}
       >
         {value}
-      </Text>
+      </Typography>
     </View>
   );
 }
@@ -127,26 +122,17 @@ export default function ProfileScreen() {
         </Link>
 
         <View style={{ alignItems: "center", gap: spacing.xs }}>
-          <Text
-            style={{
-              color: colors.text,
-              fontSize: fonts.sizes["2xl"],
-              fontWeight: fonts.weights.bold,
-              textAlign: "center",
-            }}
-          >
+          <Typography variant="h2" color="text" align="center">
             {fullName || "Usuario"}
-          </Text>
-          <Text
+          </Typography>
+          <Typography
+            variant="body"
+            color="textMuted"
             selectable
-            style={{
-              color: colors.textMuted,
-              fontSize: fonts.sizes.md,
-              textAlign: "center",
-            }}
+            align="center"
           >
             {displayUser?.email ?? "—"}
-          </Text>
+          </Typography>
         </View>
       </Animated.View>
 

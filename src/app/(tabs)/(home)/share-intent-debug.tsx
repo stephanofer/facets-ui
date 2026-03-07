@@ -1,11 +1,12 @@
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useShareIntentContext } from "expo-share-intent";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { fonts, radius, spacing } from "@/constants/theme";
+import { Typography } from "@/components/ui/typography";
+import { radius, spacing } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 
 function InfoRow({
@@ -33,27 +34,21 @@ function InfoRow({
         borderColor: isDark ? colors.border : "transparent",
       }}
     >
-      <Text
-        style={{
-          fontSize: fonts.sizes.xs,
-          fontWeight: fonts.weights.medium,
-          color: colors.textMuted,
-          textTransform: "uppercase",
-          letterSpacing: 0.5,
-        }}
+      <Typography
+        variant="small"
+        color="textMuted"
+        style={{ textTransform: "uppercase", letterSpacing: 0.5 }}
       >
         {label}
-      </Text>
-      <Text
+      </Typography>
+      <Typography
+        variant="label"
+        color="text"
+        weight="bold"
         selectable
-        style={{
-          fontSize: fonts.sizes.sm,
-          fontWeight: fonts.weights.semibold,
-          color: colors.text,
-        }}
       >
         {value != null ? String(value) : "—"}
-      </Text>
+      </Typography>
     </Animated.View>
   );
 }
@@ -87,25 +82,12 @@ export default function ShareIntentDebugScreen() {
         entering={FadeInDown.duration(200)}
         style={{ gap: spacing.xs }}
       >
-        <Text
-          style={{
-            fontSize: fonts.sizes["2xl"],
-            fontWeight: fonts.weights.bold,
-            color: colors.text,
-            letterSpacing: -0.5,
-          }}
-        >
+        <Typography variant="h2" color="text" style={{ letterSpacing: -0.5 }}>
           Shared Content
-        </Text>
-        <Text
-          style={{
-            fontSize: fonts.sizes.sm,
-            fontWeight: fonts.weights.medium,
-            color: colors.textMuted,
-          }}
-        >
+        </Typography>
+        <Typography variant="label" color="textMuted">
           This is a debug screen to verify share intent is working correctly.
-        </Text>
+        </Typography>
       </Animated.View>
 
       {/* Shared Image Preview */}
@@ -144,15 +126,9 @@ export default function ShareIntentDebugScreen() {
       {/* File metadata */}
       {file ? (
         <View style={{ gap: spacing.md }}>
-          <Text
-            style={{
-              fontSize: fonts.sizes.lg,
-              fontWeight: fonts.weights.semibold,
-              color: colors.text,
-            }}
-          >
+          <Typography variant="subtitle" color="text" weight="bold">
             File Details
-          </Text>
+          </Typography>
           <InfoRow label="File Name" value={file.fileName} delay={200} />
           <InfoRow label="MIME Type" value={file.mimeType} delay={250} />
           <InfoRow
@@ -185,15 +161,9 @@ export default function ShareIntentDebugScreen() {
       {/* Meta information */}
       {shareIntent.meta ? (
         <View style={{ gap: spacing.md }}>
-          <Text
-            style={{
-              fontSize: fonts.sizes.lg,
-              fontWeight: fonts.weights.semibold,
-              color: colors.text,
-            }}
-          >
+          <Typography variant="subtitle" color="text" weight="bold">
             Metadata
-          </Text>
+          </Typography>
           {Object.entries(shareIntent.meta).map(([key, value], index) => (
             <InfoRow
               key={key}
@@ -218,28 +188,23 @@ export default function ShareIntentDebugScreen() {
           borderColor: colors.border,
         }}
       >
-        <Text
-          style={{
-            fontSize: fonts.sizes.xs,
-            fontWeight: fonts.weights.medium,
-            color: colors.textMuted,
-            textTransform: "uppercase",
-            letterSpacing: 0.5,
-          }}
+        <Typography
+          variant="small"
+          color="textMuted"
+          style={{ textTransform: "uppercase", letterSpacing: 0.5 }}
         >
           Raw Share Intent (JSON)
-        </Text>
-        <Text
+        </Typography>
+        <Typography
+          variant="small"
+          color="text"
           selectable
           style={{
-            fontSize: fonts.sizes.xs,
-            color: colors.text,
-            fontWeight: fonts.weights.regular,
             fontFamily: process.env.EXPO_OS === "ios" ? "Menlo" : "monospace",
           }}
         >
           {JSON.stringify(shareIntent, null, 2)}
-        </Text>
+        </Typography>
       </Animated.View>
 
       {/* Dismiss button */}
@@ -256,15 +221,9 @@ export default function ShareIntentDebugScreen() {
             transform: [{ scale: pressed ? 0.97 : 1 }],
           })}
         >
-          <Text
-            style={{
-              color: "#FFFFFF",
-              fontSize: fonts.sizes.md,
-              fontWeight: fonts.weights.semibold,
-            }}
-          >
+          <Typography variant="bodyMedium" color="#FFFFFF" weight="bold">
             Dismiss & Reset
-          </Text>
+          </Typography>
         </Pressable>
       </Animated.View>
     </ScrollView>

@@ -1,12 +1,13 @@
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 import { AdaptiveGlassView } from "@/components/ui/adaptive-glass-view";
 import { Icon } from "@/components/ui/icon";
+import { Typography } from "@/components/ui/typography";
 import { UserAvatar } from "@/components/ui/user-avatar";
-import { fonts, spacing } from "@/constants/theme";
+import { spacing } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 
 interface HomeTopBarProps {
@@ -75,26 +76,17 @@ export function HomeTopBar({ firstName, lastName, avatarUrl }: HomeTopBarProps) 
       >
         <UserAvatar size={52} name={fullName} uri={avatarUrl} />
         <View style={{ gap: 2, flexShrink: 1 }}>
-          <Text
-            style={{
-              color: colors.textMuted,
-              fontSize: fonts.sizes.sm,
-              fontWeight: fonts.weights.medium,
-            }}
-          >
+          <Typography variant="label" color="textMuted">
             Bienvenido nuevamente
-          </Text>
-          <Text
+          </Typography>
+          <Typography
+            variant="h3"
+            color="text"
             numberOfLines={1}
-            style={{
-              color: colors.text,
-              fontSize: fonts.sizes.xl,
-              fontWeight: fonts.weights.bold,
-              letterSpacing: -0.3,
-            }}
+            style={{ letterSpacing: -0.3 }}
           >
             {fullName || "Usuario"}
-          </Text>
+          </Typography>
         </View>
       </Pressable>
 

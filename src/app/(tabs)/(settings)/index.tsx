@@ -1,8 +1,9 @@
-import { ScrollView, Text } from "react-native";
+import { ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { Typography } from "@/components/ui/typography";
+import { spacing } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
-import { fonts, spacing } from "@/constants/theme";
 
 export default function SettingsScreen() {
   const { colors } = useAppTheme();
@@ -19,15 +20,9 @@ export default function SettingsScreen() {
         paddingBottom: insets.bottom + spacing.xl,
       }}
     >
-      <Text
-        style={{
-          color: colors.textMuted,
-          fontSize: fonts.sizes.md,
-          textAlign: "center",
-        }}
-      >
+      <Typography variant="body" color="textMuted" align="center">
         Settings will appear here
-      </Text>
+      </Typography>
     </ScrollView>
   );
 }

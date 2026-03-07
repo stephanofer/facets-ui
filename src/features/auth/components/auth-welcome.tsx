@@ -1,10 +1,11 @@
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
-import { Linking, Pressable, Text, View } from "react-native";
+import { Linking, Pressable, View } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { fonts, radius, spacing } from "@/constants/theme";
+import { Typography } from "@/components/ui/typography";
+import { radius, spacing } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 
 // TODO: Replace with real URLs before production launch
@@ -48,17 +49,13 @@ export function AuthWelcome({ onCreateAccount, onLogin }: AuthWelcomeProps) {
           entering={FadeIn.duration(300)}
           style={{ alignItems: "center", gap: spacing.sm }}
         >
-          <Text
-            style={{
-              color: colors.primary,
-              fontSize: fonts.sizes["4xl"],
-              fontWeight: fonts.weights.bold,
-              fontStyle: "italic",
-              letterSpacing: 2,
-            }}
+          <Typography
+            variant="h1"
+            color="primary"
+            style={{ fontSize: 36, lineHeight: 42, fontStyle: "italic", letterSpacing: 2 }}
           >
             FACETS
-          </Text>
+          </Typography>
         </Animated.View>
 
         {/* Tagline */}
@@ -66,28 +63,24 @@ export function AuthWelcome({ onCreateAccount, onLogin }: AuthWelcomeProps) {
           entering={FadeInDown.duration(300).delay(80)}
           style={{ alignItems: "center", gap: spacing.xs }}
         >
-          <Text
-            style={{
-              color: colors.text,
-              fontSize: fonts.sizes["2xl"],
-              fontWeight: fonts.weights.semibold,
-              textAlign: "center",
-              letterSpacing: -0.3,
-            }}
+          <Typography
+            variant="h2"
+            color="text"
+            weight="medium"
+            align="center"
+            style={{ letterSpacing: -0.3 }}
           >
             Mirá tu plata,
-          </Text>
-          <Text
-            style={{
-              color: colors.primary,
-              fontSize: fonts.sizes["2xl"],
-              fontWeight: fonts.weights.semibold,
-              textAlign: "center",
-              letterSpacing: -0.3,
-            }}
+          </Typography>
+          <Typography
+            variant="h2"
+            color="primary"
+            weight="medium"
+            align="center"
+            style={{ letterSpacing: -0.3 }}
           >
             de otra manera
-          </Text>
+          </Typography>
         </Animated.View>
 
         {/* Hero image */}
@@ -137,16 +130,14 @@ export function AuthWelcome({ onCreateAccount, onLogin }: AuthWelcomeProps) {
             transform: [{ scale: pressed ? 0.97 : 1 }],
           })}
         >
-          <Text
-            style={{
-              color: "#FFFFFF",
-              fontSize: fonts.sizes.lg,
-              fontWeight: fonts.weights.semibold,
-              letterSpacing: 0.2,
-            }}
+          <Typography
+            variant="subtitle"
+            color="#FFFFFF"
+            weight="bold"
+            style={{ letterSpacing: 0.2 }}
           >
             Crear cuenta
-          </Text>
+          </Typography>
         </Pressable>
 
         {/* Secondary — Login */}
@@ -170,16 +161,14 @@ export function AuthWelcome({ onCreateAccount, onLogin }: AuthWelcomeProps) {
             transform: [{ scale: pressed ? 0.97 : 1 }],
           })}
         >
-          <Text
-            style={{
-              color: colors.text,
-              fontSize: fonts.sizes.lg,
-              fontWeight: fonts.weights.semibold,
-              letterSpacing: 0.2,
-            }}
+          <Typography
+            variant="subtitle"
+            color="text"
+            weight="bold"
+            style={{ letterSpacing: 0.2 }}
           >
             Ya tengo cuenta
-          </Text>
+          </Typography>
         </Pressable>
 
         {/* Legal links */}
@@ -192,26 +181,14 @@ export function AuthWelcome({ onCreateAccount, onLogin }: AuthWelcomeProps) {
           }}
         >
           <Pressable hitSlop={8} onPress={() => Linking.openURL(PRIVACY_POLICY_URL)}>
-            <Text
-              style={{
-                color: colors.textMuted,
-                fontSize: fonts.sizes.xs,
-                fontWeight: fonts.weights.medium,
-              }}
-            >
+            <Typography variant="small" color="textMuted">
               Política de Privacidad
-            </Text>
+            </Typography>
           </Pressable>
           <Pressable hitSlop={8} onPress={() => Linking.openURL(TERMS_OF_SERVICE_URL)}>
-            <Text
-              style={{
-                color: colors.textMuted,
-                fontSize: fonts.sizes.xs,
-                fontWeight: fonts.weights.medium,
-              }}
-            >
+            <Typography variant="small" color="textMuted">
               Términos de Servicio
-            </Text>
+            </Typography>
           </Pressable>
         </View>
       </Animated.View>

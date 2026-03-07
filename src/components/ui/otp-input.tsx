@@ -1,23 +1,23 @@
 import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Pressable,
-    Text,
-    TextInput,
-    View,
+  ActivityIndicator,
+  Pressable,
+  TextInput,
+  View,
 } from "react-native";
 import Animated, {
-    FadeIn,
-    FadeOut,
-    useAnimatedStyle,
-    useSharedValue,
-    withRepeat,
-    withSequence,
-    withTiming,
+  FadeIn,
+  FadeOut,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
 } from "react-native-reanimated";
 
-import { fonts, radius, spacing } from "@/constants/theme";
+import { AnimatedTypography, Typography } from "@/components/ui/typography";
+import { fontFamily, radius, spacing } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 
 const OTP_LENGTH = 6;
@@ -139,6 +139,7 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
           opacity: 0,
           height: 1,
           width: 1,
+          fontFamily: fontFamily.medium,
           // Position off-screen to avoid visual artifacts on Android
           left: -1000,
         }}
@@ -195,17 +196,16 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
                 }}
               >
                 {isFilled ? (
-                  <Animated.Text
+                  <AnimatedTypography
+                    variant="h2"
                     entering={FadeIn.duration(100)}
                     style={{
-                      fontSize: fonts.sizes["2xl"],
-                      fontWeight: fonts.weights.bold,
                       color: colors.text,
                       fontVariant: ["tabular-nums"],
                     }}
                   >
                     {digit}
-                  </Animated.Text>
+                  </AnimatedTypography>
                 ) : isCurrent ? (
                   <Animated.View
                     style={[
@@ -238,47 +238,32 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
           }}
         >
           <ActivityIndicator size="small" color={colors.primary} />
-          <Text
-            style={{
-              fontSize: fonts.sizes.sm,
-              color: colors.textMuted,
-              fontWeight: fonts.weights.medium,
-            }}
-          >
+          <Typography variant="label" color="textMuted">
             Verificando...
-          </Text>
+          </Typography>
         </Animated.View>
       )}
 
       {/* Error message */}
       {error && !disabled && (
         <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(100)}>
-          <Text
+          <Typography
+            variant="label"
+            color="#EF4444"
             selectable
-            style={{
-              fontSize: fonts.sizes.sm,
-              color: "#EF4444",
-              fontWeight: fonts.weights.medium,
-              textAlign: "center",
-            }}
+            align="center"
           >
             {error}
-          </Text>
+          </Typography>
         </Animated.View>
       )}
 
       {/* Tap to focus hint — only when not focused and no code entered */}
       {!isFocused && code.length === 0 && !disabled && !error && (
         <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(100)}>
-          <Text
-            style={{
-              fontSize: fonts.sizes.xs,
-              color: colors.textMuted,
-              textAlign: "center",
-            }}
-          >
+          <Typography variant="small" color="textMuted" align="center">
             Tocá para ingresar el código
-          </Text>
+          </Typography>
         </Animated.View>
       )}
     </View>
