@@ -11,7 +11,7 @@ import {
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AppIcon } from "@/components/ui/app-icon";
+import { Icon } from "@/components/ui/icon";
 import { fonts, spacing } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 
@@ -80,9 +80,8 @@ export function AuthScreenLayout({
                     opacity: pressed ? 0.5 : 1,
                   })}
                 >
-                  <AppIcon
-                    sf="chevron.left"
-                    material="arrow-back-ios"
+                  <Icon
+                    name="CaretLeft"
                     size={20}
                     color={colors.text}
                   />

@@ -10,7 +10,9 @@ import { Stack } from "expo-router/stack";
 import { ShareIntentProvider } from "expo-share-intent";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
+import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
@@ -22,8 +24,46 @@ import { useOnboardingStore } from "@/stores/onboarding-store";
 // This MUST be called at module level (top of file), before any component renders.
 SplashScreen.preventAutoHideAsync();
 
+function UnsafeAreaDebugOverlay() {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <>
+      {insets.top > 0 ? (
+        <View
+          pointerEvents="none"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: insets.top,
+            backgroundColor: "#FF00A8",
+            zIndex: 999,
+          }}
+        />
+      ) : null}
+
+      {insets.bottom > 0 ? (
+        <View
+          pointerEvents="none"
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: insets.bottom,
+            backgroundColor: "#00D1FF",
+            zIndex: 999,
+          }}
+        />
+      ) : null}
+    </>
+  );
+}
+
 function RootNavigator() {
-  const { isDark, colors: themeColors } = useAppTheme();
+  const { isDark } = useAppTheme();
   const hasCompletedOnboarding = useOnboardingStore(
     (s) => s.hasCompletedOnboarding,
   );
@@ -86,29 +126,44 @@ function RootNavigator() {
 
   return (
     <ThemeProvider value={navigationTheme}>
-      <StatusBar style={isDark ? "light" : "dark"} />
-      <Stack
-        screenOptions={{
-          animation: "fade",
-          animationDuration: 200,
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="(auth)"
-          options={{
-            headerShown: false,
+      <View style={{ flex: 1 }}>
+        <StatusBar style={isDark ? "light" : "dark"} />
+        <Stack
+          screenOptions={{
+            animation: "fade",
+            animationDuration: 200,
           }}
-        />
-        <Stack.Screen
-          name="onboarding"
-          options={{
-            headerShown: false,
-            gestureEnabled: false,
-          }}
-        />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="(auth)"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="onboarding"
+            options={{
+              headerShown: false,
+              gestureEnabled: false,
+            }}
+          />
+          <Stack.Screen
+            name="profile-avatar-sheet"
+            options={{
+              presentation: "formSheet",
+              headerShown: false,
+              contentStyle: { backgroundColor: "transparent" },
+              sheetGrabberVisible: true,
+              sheetAllowedDetents: [0.38],
+              sheetLargestUndimmedDetentIndex: 0,
+            }}
+          />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+
+        <UnsafeAreaDebugOverlay />
+      </View>
     </ThemeProvider>
   );
 }

@@ -1,10 +1,10 @@
 import { ScrollView, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { useAppTheme } from "@/hooks/use-app-theme";
 import { fonts, spacing } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/use-app-theme";
 
-export default function TransactionsScreen() {
+export default function GoalsScreen() {
   const { colors } = useAppTheme();
   const insets = useSafeAreaInsets();
 
@@ -26,7 +26,7 @@ export default function TransactionsScreen() {
           textAlign: "center",
         }}
       >
-        Transactions will appear here
+        Goals will appear here
       </Text>
     </ScrollView>
   );

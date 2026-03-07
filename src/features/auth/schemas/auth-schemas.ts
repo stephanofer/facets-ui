@@ -92,6 +92,14 @@ export const planSchema = z.object({
   name: z.string(),
 });
 
+export const avatarSchema = z.object({
+  id: z.string(),
+  url: z.url(),
+  mimeType: z.string(),
+  size: z.number(),
+  purpose: z.literal("AVATAR"),
+});
+
 export const userSchema = z.object({
   id: z.string(),
   email: z.email(),
@@ -100,6 +108,7 @@ export const userSchema = z.object({
   emailVerified: z.boolean(),
   status: z.enum(["PENDING_VERIFICATION", "ACTIVE", "SUSPENDED", "DELETED"]),
   createdAt: z.string(),
+  avatar: avatarSchema.nullish(),
   plan: planSchema,
 });
 

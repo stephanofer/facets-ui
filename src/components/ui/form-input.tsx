@@ -2,7 +2,7 @@ import { forwardRef, useRef, useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
-import { AppIcon } from "@/components/ui/app-icon";
+import { Icon } from "@/components/ui/icon";
 import { fonts, radius, spacing } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 
@@ -94,9 +94,8 @@ export const FormInput = forwardRef<TextInput, FormInputProps>(
                 padding: spacing.xs,
               }}
             >
-              <AppIcon
-                sf={isPasswordVisible ? "eye.slash" : "eye"}
-                material={isPasswordVisible ? "visibility-off" : "visibility"}
+              <Icon
+                name={isPasswordVisible ? "EyeSlash" : "Eye"}
                 size={20}
                 color={colors.textMuted}
               />

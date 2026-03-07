@@ -6,8 +6,10 @@ import { useShareIntentContext } from "expo-share-intent";
 import { useEffect } from "react";
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { fonts, radius, spacing } from "@/constants/theme";
+import { HomeTopBar } from "@/features/auth/components/home-top-bar";
 import { useLogout } from "@/features/auth/hooks/use-logout";
 import { useUser } from "@/features/auth/hooks/use-user";
 import { useAppTheme } from "@/hooks/use-app-theme";
@@ -100,6 +102,7 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function HomeScreen() {
   const { colors } = useAppTheme();
+  const insets = useSafeAreaInsets();
   const { data: user, isLoading, error, refetch } = useUser();
   const localUser = useAuthStore((s) => s.user);
   const logout = useLogout();
@@ -217,25 +220,20 @@ export default function HomeScreen() {
       contentInsetAdjustmentBehavior="automatic"
       style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={{
-        padding: spacing.xl,
+        paddingHorizontal: spacing.xl,
+        paddingTop:
+          process.env.EXPO_OS === "android" ? insets.top + spacing.md : spacing.md,
+        paddingBottom: insets.bottom + spacing["4xl"],
         gap: spacing.lg,
       }}
     >
-      {/* Welcome header */}
-      <Animated.View
-        entering={FadeInDown.duration(200)}
-        style={{ gap: spacing.xs }}
-      >
-        <Text
-          style={{
-            fontSize: fonts.sizes["3xl"],
-            fontWeight: fonts.weights.bold,
-            color: colors.text,
-            letterSpacing: -0.5,
-          }}
-        >
-          ¡Hola, {displayUser?.firstName}!
-        </Text>
+      <HomeTopBar
+        firstName={displayUser?.firstName}
+        lastName={displayUser?.lastName}
+        avatarUrl={displayUser?.avatar?.url ?? null}
+      />
+
+      <Animated.View entering={FadeInDown.duration(200).delay(40)} style={{ gap: spacing.xs }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
           <StatusBadge status={displayUser?.status ?? "ACTIVE"} />
           <Text
@@ -301,8 +299,7 @@ export default function HomeScreen() {
         </Pressable>
       </Animated.View>
 
-      {/* Bottom padding for scroll */}
-      <View style={{ height: spacing["2xl"] }} />
+      <View style={{ height: spacing.xs }} />
     </ScrollView>
   );
 }

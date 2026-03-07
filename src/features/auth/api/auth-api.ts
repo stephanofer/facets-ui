@@ -52,3 +52,16 @@ export function logoutUser(refreshToken: string): Promise<{ message: string }> {
 export function getMe(): Promise<User> {
   return apiClient<User>("/auth/me");
 }
+
+export function uploadAvatar(formData: FormData): Promise<User> {
+  return apiClient<User>("/auth/me/avatar", {
+    method: "PUT",
+    body: formData,
+  });
+}
+
+export function deleteAvatar(): Promise<void> {
+  return apiClient<void>("/auth/me/avatar", {
+    method: "DELETE",
+  });
+}

@@ -14,6 +14,7 @@ import type {
   registerResponseSchema,
   verifyEmailResponseSchema,
   planSchema,
+  avatarSchema,
 } from "@/features/auth/schemas/auth-schemas";
 
 // ─── Form Types ──────────────────────────────────────────────────────
@@ -30,6 +31,7 @@ export type ResendVerificationRequest = z.infer<
 // ─── API Response Types ──────────────────────────────────────────────
 export type User = z.infer<typeof userSchema>;
 export type Plan = z.infer<typeof planSchema>;
+export type Avatar = z.infer<typeof avatarSchema>;
 export type Tokens = z.infer<typeof tokensSchema>;
 export type LoginResponse = z.infer<typeof loginResponseSchema>;
 export type RegisterResponse = z.infer<typeof registerResponseSchema>;

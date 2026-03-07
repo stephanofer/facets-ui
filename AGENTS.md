@@ -381,6 +381,69 @@ React Hook Form + Zod resolver. One pattern everywhere.
 
 ---
 
+## Iconography
+
+Single icon library across the app: **Phosphor Icons** (`phosphor-react-native`).
+
+### Rules
+
+- ALWAYS use the `Icon` wrapper from `@/components/ui/icon`. NEVER import phosphor directly in screens or features.
+- Icons are rendered as SVG via `react-native-svg`. Consistent cross-platform rendering — no per-platform mapping needed.
+- The `Icon` component uses a **registry pattern**: only icons added to the registry are bundled. This keeps the app lean.
+- Adding a new icon = one import + one entry in the registry inside `icon.tsx`. That's it.
+
+### Standard API
+
+- `Icon` → standard icon component from `@/components/ui/icon`
+- `IconName` / `IconProps` / `IconWeight` → exported types from the same file
+
+### Use `Icon` like this
+
+```tsx
+<Icon name="Bell" />
+<Icon name="CaretLeft" size={20} color={colors.textMuted} />
+<Icon name="Camera" weight="fill" size={18} />
+<Icon name="Trash" color="#BE123C" />
+```
+
+### Props
+
+| Prop     | Type         | Default       | Description                                           |
+| -------- | ------------ | ------------- | ----------------------------------------------------- |
+| `name`   | `IconName`   | —             | Phosphor icon name from registry (required)           |
+| `size`   | `number`     | `24`          | Icon size in pixels                                   |
+| `weight` | `IconWeight` | `"regular"`   | `thin`, `light`, `regular`, `bold`, `fill`, `duotone` |
+| `color`  | `string`     | `colors.text` | Defaults to theme text colour                         |
+| `style`  | `ViewStyle`  | —             | Style for the wrapping SVG view                       |
+
+### Adding a new icon
+
+1. Open `src/components/ui/icon.tsx`
+2. Add the import: `import { NewIcon } from "phosphor-react-native";`
+3. Add to registry: `NewIcon,`
+4. Done — autocomplete immediately available
+
+### Weight variants
+
+Use `weight` to change the icon style. DON'T register the same icon multiple times for different weights.
+
+- `"regular"` → default outline style (most common)
+- `"bold"` → heavier outline
+- `"fill"` → solid filled variant
+- `"light"` / `"thin"` → lighter strokes
+- `"duotone"` → two-tone style with configurable opacity
+
+### Do / Don't
+
+- DO use `<Icon name="Bell" />` everywhere
+- DO add new icons to the registry when needed
+- DO use `weight="fill"` for filled variants instead of separate icon names
+- DON'T import from `phosphor-react-native` directly in screens or features
+- DON'T use `@expo/vector-icons`, `expo-symbols`, or any other icon library
+- DON'T create per-platform icon mappings — phosphor is cross-platform by design
+
+---
+
 ## Navigation
 
 ### Structure
@@ -490,15 +553,14 @@ Finance app. Security is NOT optional.
 ## Performance
 
 | Strategy       | Implementation                                                                                               |
-| -------------- | ------------------------------------------------------------------------------------------------------------ |
+| -------------- | ------------------------------------------------------------------------------------------------------------ | --- |
 | React Compiler | Enabled — automatic memoization. Don't manually add `useMemo`/`useCallback` unless profiler shows a problem. |
 | List rendering | `FlashList` for long lists. Never `ScrollView` for dynamic data.                                             |
 | Images         | `expo-image` (built-in caching, blurhash placeholders).                                                      |
 | Query caching  | `staleTime: 5min` prevents unnecessary refetches.                                                            |
 | Bundle size    | `date-fns` (tree-shakeable). No moment.js. No lodash (use native methods).                                   |
 | Animations     | Reanimated (runs on UI thread). No Animated API.                                                             |
-| Navigation     | Native stacks and tabs — no JS-based navigation.                                                             |
-| Fonts          | Load at splash screen, not at runtime.                                                                       |
+| Navigation     | Native stacks and tabs — no JS-based navigation.                                                             |     |
 
 ---
 

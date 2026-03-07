@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { useShareIntentContext } from "expo-share-intent";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { fonts, radius, spacing } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
@@ -59,6 +60,7 @@ function InfoRow({
 
 export default function ShareIntentDebugScreen() {
   const { colors } = useAppTheme();
+  const insets = useSafeAreaInsets();
   const { shareIntent, resetShareIntent } = useShareIntentContext();
 
   const file = shareIntent.files?.[0];
@@ -75,7 +77,9 @@ export default function ShareIntentDebugScreen() {
       contentContainerStyle={{
         padding: spacing.xl,
         gap: spacing.lg,
-        paddingBottom: spacing["3xl"],
+        paddingTop:
+          process.env.EXPO_OS === "android" ? insets.top + spacing.xl : spacing.xl,
+        paddingBottom: insets.bottom + spacing["3xl"],
       }}
     >
       {/* Header */}
@@ -229,8 +233,8 @@ export default function ShareIntentDebugScreen() {
           selectable
           style={{
             fontSize: fonts.sizes.xs,
-            fontWeight: fonts.weights.regular,
             color: colors.text,
+            fontWeight: fonts.weights.regular,
             fontFamily: process.env.EXPO_OS === "ios" ? "Menlo" : "monospace",
           }}
         >

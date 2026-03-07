@@ -88,14 +88,20 @@ async function request<T>(
   retry = true,
 ): Promise<T> {
   const authHeaders = await getAuthHeaders();
+  const isFormDataBody = options.body instanceof FormData;
+  const headers = new Headers(options.headers);
+
+  Object.entries(authHeaders).forEach(([key, value]) => {
+    headers.set(key, value);
+  });
+
+  if (!isFormDataBody && !headers.has("Content-Type") && !headers.has("content-type")) {
+    headers.set("Content-Type", "application/json");
+  }
 
   const response = await fetch(`${BASE_URL}${path}`, {
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeaders,
-      ...options.headers,
-    },
+    headers,
   });
 
   if (!response.ok) {
@@ -121,6 +127,10 @@ async function request<T>(
     );
   }
 
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
   // Unwrap the standard API response: { success, data, meta }
   const json = await response.json();
   return json.data as T;
@@ -141,7 +151,7 @@ export function apiClientNoAuth<T>(
 ): Promise<T> {
   return request<T>(
     path,
-    { ...options, headers: { ...options.headers } },
+    { ...options, headers: new Headers(options.headers) },
     false,
   );
 }
