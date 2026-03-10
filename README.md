@@ -1,56 +1,51 @@
-# Welcome to your Expo app 👋
+<div align="center">
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+# Facets
 
-## Get started
+**El control total de tus finanzas personales y profesionales, en la palma de tu mano.**
 
-1. Install dependencies
+[![Plataformas](https://img.shields.io/badge/Plataformas-iOS%20%7C%20Android%20%7C%20Web-blue?style=for-the-badge)](#)
+[![Estado](https://img.shields.io/badge/Estado-En%20Desarrollo-success?style=for-the-badge)](#)
+[![SaaS](https://img.shields.io/badge/SaaS-Finance%20Tracker-purple?style=for-the-badge)](#)
 
-   ```bash
-   npm install
-   ```
+_Facets es una plataforma de seguimiento financiero diseñada para brindarte claridad absoluta sobre tu dinero._
 
-2. Start the app
+</div>
 
-   ```bash
-   npx expo start
-   ```
+## 🌟 ¿Qué es Facets?
 
-In the output, you'll find options to open the app in a
+Con una interfaz elegante, rápida y fluida, **Facets** te permite gestionar desde tus gastos diarios hasta deudas complejas, préstamos y metas de ahorro a largo plazo.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Pensado tanto para individuos como para cuentas compartidas, Facets simplifica la complejidad financiera para que puedas tomar mejores decisiones, sin importar en qué parte del mundo te encuentres o qué moneda utilices.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## ✨ Características Principales
 
-When you're ready, run:
+| Característica                  | Descripción                                                                                                                                                       |
+| :------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 📊 **Gestión de Transacciones** | Lleva un registro detallado de todos tus ingresos y gastos. Categoriza, etiqueta y analiza adónde va tu dinero con total precisión.                               |
+| 💳 **Múltiples Cuentas**        | Administra todo tu ecosistema financiero en un solo lugar. Desde el efectivo en tu billetera hasta tarjetas de crédito, cuentas bancarias y billeteras virtuales. |
+| 🤝 **Préstamos y Deudas**       | Mantén un control claro de lo que debes y de lo que te deben. Registra pagos parciales, intereses y fechas de vencimiento sin complicaciones.                     |
+| 🎯 **Metas Financieras**        | ¿Ahorrando para un viaje o un auto nuevo? Define tus metas, establece plazos y observa tu progreso en tiempo real.                                                |
+| 🔄 **Pagos Recurrentes**        | Olvídate de los pagos sorpresa. Configura suscripciones y pagos frecuentes para que el sistema los contemple en tus proyecciones.                                 |
+| 🌍 **Multi-Moneda**             | Soporte nativo para múltiples monedas y países. Viaja y gasta en diferentes divisas, Facets consolida tu patrimonio en tu moneda principal.                       |
+| 👥 **Cuentas Multi-Tenant**     | Cuentas diseñadas para soportar múltiples perfiles, ideal para separar finanzas personales de negocios o compartir con tu pareja.                                 |
 
-```bash
-npm run reset-project
-```
+---
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🎨 Una Experiencia Premium
 
-### Other setup steps
+Facets no es solo funcional, es un placer de usar. Hemos diseñado cada detalle centrándonos en:
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+- 🌊 **Fluidez absoluta:** Transiciones suaves, animaciones orgánicas y una interacción que se siente completamente natural en cualquier dispositivo.
+- 👁️ **Claridad visual:** Tipografía moderna y un sistema de iconos coherente para que leas tus finanzas de un vistazo, sin saturación visual.
+- 🔒 **Seguridad primero:** Tu información financiera es privada. Contamos con protección biométrica nativa (Face ID/Touch ID) y almacenamiento seguro para garantizar tu tranquilidad.
 
-## Learn more
+---
 
-To learn more about developing your project with Expo, look at the following resources:
+<div align="center">
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+> _"Tu dinero tiene muchas facetas. Comienza a entenderlas todas hoy."_
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+</div>
