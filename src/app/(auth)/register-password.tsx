@@ -84,6 +84,9 @@ export default function RegisterPasswordScreen() {
     <AuthScreenLayout
       title="Creá tu contraseña"
       subtitle="Mínimo 8 caracteres con mayúscula, minúscula y número."
+      headerVariant="standard"
+      backHref="/(auth)/register-email"
+      registerProgress={{ currentStep: 3, totalSteps: 3 }}
       footer={
         <PrimaryButton
           title="Crear cuenta"

@@ -18,7 +18,6 @@ import { colors } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { queryClient } from "@/lib/query-client";
 import { useAuthStore } from "@/stores/auth-store";
-import { useOnboardingStore } from "@/stores/onboarding-store";
 
 // Keep the native splash screen visible until we know the auth state.
 // This MUST be called at module level (top of file), before any component renders.
@@ -64,9 +63,6 @@ function UnsafeAreaDebugOverlay() {
 
 function RootNavigator() {
   const { isDark } = useAppTheme();
-  const hasCompletedOnboarding = useOnboardingStore(
-    (s) => s.hasCompletedOnboarding,
-  );
   const authStatus = useAuthStore((s) => s.status);
   const initialize = useAuthStore((s) => s.initialize);
 
@@ -75,15 +71,13 @@ function RootNavigator() {
     initialize();
   }, [initialize]);
 
-  // Navigate based on combined onboarding + auth state,
+  // Navigate based on auth state only,
   // then hide the splash screen once we know where to go.
   useEffect(() => {
     // Don't navigate until auth is resolved
     if (authStatus === "loading") return;
 
-    if (!hasCompletedOnboarding) {
-      router.replace("/onboarding" as never);
-    } else if (authStatus === "unauthenticated") {
+    if (authStatus === "unauthenticated") {
       router.replace("/(auth)/welcome" as never);
     } else if (authStatus === "authenticated") {
       router.replace("/(tabs)/(home)" as never);
@@ -92,7 +86,7 @@ function RootNavigator() {
     // Auth state is resolved and navigation has been triggered.
     // Hide the splash screen so the correct route is revealed.
     SplashScreen.hideAsync();
-  }, [hasCompletedOnboarding, authStatus]);
+  }, [authStatus]);
 
   const navigationTheme = isDark
     ? {
@@ -139,13 +133,6 @@ function RootNavigator() {
             name="(auth)"
             options={{
               headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="onboarding"
-            options={{
-              headerShown: false,
-              gestureEnabled: false,
             }}
           />
           <Stack.Screen

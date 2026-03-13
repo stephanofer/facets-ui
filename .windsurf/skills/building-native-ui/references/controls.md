@@ -154,11 +154,7 @@ const [date, setDate] = useState(new Date());
 ### Time Intervals
 
 ```tsx
-<DateTimePicker
-  value={date}
-  mode="time"
-  minuteInterval={15}
-/>
+<DateTimePicker value={date} mode="time" minuteInterval={15} />
 ```
 
 ### Min/Max Dates
@@ -206,7 +202,7 @@ import { TextInput } from "react-native";
     borderRadius: 8,
     backgroundColor: "#f0f0f0",
   }}
-/>
+/>;
 ```
 
 ### Keyboard Types
@@ -268,3 +264,4 @@ const [selected, setSelected] = useState("js");
 - **Spacing**: Use consistent padding around controls (12-16pt)
 - **Labels**: Place labels above or to the left of controls
 - **Grouping**: Group related controls in sections with headers
+

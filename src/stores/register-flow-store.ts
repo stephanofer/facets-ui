@@ -26,5 +26,7 @@ export const useRegisterFlowStore = create<RegisterFlowState>()((set) => ({
   setName: (firstName, lastName) => set({ firstName, lastName }),
   setEmail: (email) => set({ email }),
   setPassword: (password) => set({ password }),
+  // Reset is only for starting a fresh register flow from the auth landing.
+  // Intra-flow back navigation must preserve draft values.
   reset: () => set(initialState),
 }));

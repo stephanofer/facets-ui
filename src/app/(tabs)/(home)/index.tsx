@@ -173,7 +173,7 @@ export default function HomeScreen() {
           })}
         >
           <Typography variant="label" color="textMuted" weight="bold">
-            Volver a welcome
+            Volver al acceso
           </Typography>
         </Pressable>
       </ScrollView>

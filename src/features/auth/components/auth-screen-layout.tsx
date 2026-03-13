@@ -16,13 +16,26 @@ import { spacing } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 
 import type { ReactNode } from "react";
+import type { ViewStyle } from "react-native";
+
+export interface RegisterProgressConfig {
+  currentStep: 1 | 2 | 3;
+  totalSteps: 3;
+  label?: string;
+}
+
+type AuthHeaderVariant = "landing" | "standard";
 
 interface AuthScreenLayoutProps {
-  title: string;
+  title?: string;
   subtitle?: string;
   children: ReactNode;
   footer: ReactNode;
-  showBackButton?: boolean;
+  headerVariant?: AuthHeaderVariant;
+  logoPlaceholderText?: string;
+  registerProgress?: RegisterProgressConfig;
+  backHref?: string;
+  contentContainerStyle?: ViewStyle;
 }
 
 export function AuthScreenLayout({
@@ -30,16 +43,24 @@ export function AuthScreenLayout({
   subtitle,
   children,
   footer,
-  showBackButton = true,
+  headerVariant = "standard",
+  logoPlaceholderText = "FACETS",
+  registerProgress,
+  backHref,
+  contentContainerStyle,
 }: AuthScreenLayoutProps) {
   const insets = useSafeAreaInsets();
   const { colors } = useAppTheme();
+  const showBackButton = headerVariant === "standard";
 
   const handleBack = () => {
     if (process.env.EXPO_OS === "ios") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    router.back();
+
+    if (backHref) {
+      router.replace(backHref as never);
+    }
   };
 
   return (
@@ -54,9 +75,6 @@ export function AuthScreenLayout({
           behavior={process.env.EXPO_OS === "ios" ? "padding" : undefined}
           style={{ flex: 1 }}
         >
-          {/* Single FadeIn (opacity only) for the whole screen — no transform animations
-              inside KAV, because FadeInDown/SlideIn transforms conflict with KAV repositioning
-              and cause the footer to "stick" after keyboard dismiss. */}
           <Animated.View entering={FadeIn.duration(250)} style={{ flex: 1 }}>
             <View
               style={{
@@ -65,54 +83,86 @@ export function AuthScreenLayout({
                 paddingHorizontal: spacing.xl,
               }}
             >
-              {/* Back button */}
-              {showBackButton && (
-                <Pressable
-                  onPress={handleBack}
-                  hitSlop={12}
-                  style={({ pressed }) => ({
-                    width: 40,
-                    height: 40,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderRadius: 20,
-                    marginLeft: -spacing.sm,
-                    opacity: pressed ? 0.5 : 1,
-                  })}
-                >
-                  <Icon
-                    name="CaretLeft"
-                    size={20}
-                    color={colors.text}
-                  />
-                </Pressable>
-              )}
-
-              {/* Title + Subtitle */}
               <View
                 style={{
-                  gap: spacing.xs,
-                  paddingTop: spacing.md,
-                  paddingBottom: spacing.xl,
+                  minHeight: 40,
+                  flexDirection: "row",
+                  alignItems: "center",
                 }}
               >
-                <Typography variant="h2" color="text" style={{ letterSpacing: -0.3 }}>
-                  {title}
-                </Typography>
-                {subtitle && (
-                  <Typography variant="caption" color="textMuted" style={{ lineHeight: 20 }}>
-                    {subtitle}
+                <View
+                  style={{
+                    width: 40,
+                    height: 40,
+                    justifyContent: "center",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  {showBackButton ? (
+                    <Pressable
+                      onPress={handleBack}
+                      hitSlop={12}
+                      style={({ pressed }) => ({
+                        width: 40,
+                        height: 40,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: 20,
+                        marginLeft: -spacing.sm,
+                        opacity: pressed ? 0.5 : 1,
+                      })}
+                    >
+                      <Icon name="CaretLeft" size={20} color={colors.text} />
+                    </Pressable>
+                  ) : (
+                    <View style={{ width: 40, height: 40 }} />
+                  )}
+                </View>
+
+                <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+                  <Typography
+                    variant="label"
+                    color="primary"
+                    weight="bold"
+                    style={{ letterSpacing: 1.8 }}
+                  >
+                    {logoPlaceholderText}
                   </Typography>
-                )}
+                </View>
+
+                <View style={{ width: 40, height: 40 }} />
               </View>
 
-              {/* Form content */}
-              <View style={{ gap: spacing.lg }}>
-                {children}
-              </View>
+              {registerProgress ? (
+                <View style={{ paddingTop: spacing.lg, paddingBottom: spacing.md }}>
+                  <AuthRegisterProgress config={registerProgress} />
+                </View>
+              ) : null}
+
+              {title || subtitle ? (
+                <View
+                  style={{
+                    gap: spacing.xs,
+                    paddingTop: headerVariant === "landing" ? spacing.lg : spacing.md,
+                    paddingBottom: spacing.xl,
+                  }}
+                >
+                  {title ? (
+                    <Typography variant="h2" color="text" style={{ letterSpacing: -0.3 }}>
+                      {title}
+                    </Typography>
+                  ) : null}
+                  {subtitle ? (
+                    <Typography variant="caption" color="textMuted" style={{ lineHeight: 20 }}>
+                      {subtitle}
+                    </Typography>
+                  ) : null}
+                </View>
+              ) : null}
+
+              <View style={[{ gap: spacing.lg }, contentContainerStyle]}>{children}</View>
             </View>
 
-            {/* Footer (button) — sits at bottom but above keyboard */}
             <View
               style={{
                 paddingHorizontal: spacing.xl,
@@ -126,5 +176,41 @@ export function AuthScreenLayout({
         </KeyboardAvoidingView>
       </View>
     </TouchableWithoutFeedback>
+  );
+}
+
+interface AuthRegisterProgressProps {
+  config: RegisterProgressConfig;
+}
+
+function AuthRegisterProgress({ config }: AuthRegisterProgressProps) {
+  const { colors } = useAppTheme();
+
+  return (
+    <View style={{ gap: spacing.sm }}>
+      <Typography variant="small" color="textMuted" weight="medium">
+        {config.label ?? `Paso ${config.currentStep} de ${config.totalSteps}`}
+      </Typography>
+
+      <View style={{ flexDirection: "row", gap: spacing.xs }}>
+        {Array.from({ length: config.totalSteps }).map((_, index) => {
+          const isCompleted = index < config.currentStep;
+
+          return (
+            <View
+              key={`register-progress-${index}`}
+              style={{
+                flex: 1,
+                height: 4,
+                borderRadius: 999,
+                backgroundColor: isCompleted
+                  ? colors.primary
+                  : colors.border,
+              }}
+            />
+          );
+        })}
+      </View>
+    </View>
   );
 }

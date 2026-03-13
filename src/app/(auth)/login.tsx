@@ -89,6 +89,8 @@ export default function LoginScreen() {
     <AuthScreenLayout
       title="Iniciá sesión"
       subtitle="Ingresá tus datos para acceder a tu cuenta."
+      headerVariant="standard"
+      backHref="/(auth)/welcome"
       footer={
         <PrimaryButton
           title="Iniciar sesión"

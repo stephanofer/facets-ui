@@ -7,12 +7,13 @@ import { useRegisterFlowStore } from "@/stores/register-flow-store";
 export default function WelcomeScreen() {
   const resetRegisterFlow = useRegisterFlowStore((s) => s.reset);
 
-  // Clear any stale registration data whenever the user lands on welcome
+  // Clear stale registration data whenever the auth landing becomes active.
   useEffect(() => {
     resetRegisterFlow();
   }, [resetRegisterFlow]);
 
   const handleCreateAccount = () => {
+    resetRegisterFlow();
     router.push("/(auth)/register-name" as never);
   };
 

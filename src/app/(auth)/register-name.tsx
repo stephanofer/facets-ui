@@ -33,6 +33,9 @@ export default function RegisterNameScreen() {
   return (
     <AuthScreenLayout
       title="¿Cómo te llamás?"
+      headerVariant="standard"
+      backHref="/(auth)/welcome"
+      registerProgress={{ currentStep: 1, totalSteps: 3 }}
       footer={
         <PrimaryButton title="Continuar" onPress={handleSubmit(onSubmit)} />
       }

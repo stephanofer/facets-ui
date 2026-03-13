@@ -2,6 +2,7 @@ import { BellIcon } from "phosphor-react-native";
 import { CalendarBlankIcon } from "phosphor-react-native";
 import { CameraIcon } from "phosphor-react-native";
 import { CaretLeftIcon } from "phosphor-react-native";
+import { CaretRightIcon } from "phosphor-react-native";
 import { EyeIcon } from "phosphor-react-native";
 import { EyeSlashIcon } from "phosphor-react-native";
 import { ImageIcon } from "phosphor-react-native";
@@ -25,6 +26,7 @@ const iconRegistry = {
   CalendarBlank: CalendarBlankIcon,
   Camera: CameraIcon,
   CaretLeft: CaretLeftIcon,
+  CaretRight: CaretRightIcon,
   Eye: EyeIcon,
   EyeSlash: EyeSlashIcon,
   Image: ImageIcon,

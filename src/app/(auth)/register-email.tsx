@@ -30,6 +30,9 @@ export default function RegisterEmailScreen() {
   return (
     <AuthScreenLayout
       title="Ingresá tu email"
+      headerVariant="standard"
+      backHref="/(auth)/register-name"
+      registerProgress={{ currentStep: 2, totalSteps: 3 }}
       footer={
         <PrimaryButton title="Continuar" onPress={handleSubmit(onSubmit)} />
       }

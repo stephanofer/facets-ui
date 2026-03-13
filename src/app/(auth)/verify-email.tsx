@@ -16,7 +16,7 @@ import { ApiError } from "@/lib/api-client";
 const RESEND_COOLDOWN_SECONDS = 60;
 
 export default function VerifyEmailScreen() {
-  const { email } = useLocalSearchParams<{
+  const { email, source } = useLocalSearchParams<{
     email: string;
     source: "register" | "login";
   }>();
@@ -27,6 +27,7 @@ export default function VerifyEmailScreen() {
   const [otpError, setOtpError] = useState("");
   const [cooldown, setCooldown] = useState(0);
   const [resendSuccess, setResendSuccess] = useState(false);
+  const backHref = source === "register" ? "/(auth)/register-password" : "/(auth)/login";
 
   // Cooldown timer for resend
   useEffect(() => {
@@ -107,6 +108,8 @@ export default function VerifyEmailScreen() {
     <AuthScreenLayout
       title="Ingresá el código"
       subtitle={`Te enviamos un código de 6 dígitos a ${email ?? ""}.`}
+      headerVariant="standard"
+      backHref={backHref}
       footer={<View />}
     >
       <OtpInput
