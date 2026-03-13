@@ -41,7 +41,20 @@
           "imageWidth": 200
         }
       ],
-      "expo-secure-store",
+      [
+        "expo-secure-store",
+
+        {
+          "faceIDPermission": "Permite a $(PRODUCT_NAME) acceder a Face ID para proteger tus datos.",
+          "configureAndroidBackup": true
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Permite a $(PRODUCT_NAME) acceder a Face ID para proteger tus datos."
+        }
+      ],
       [
         "expo-share-intent",
         {
