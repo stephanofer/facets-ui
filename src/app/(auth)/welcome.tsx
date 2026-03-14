@@ -21,10 +21,5 @@ export default function WelcomeScreen() {
     router.push("/(auth)/login" as never);
   };
 
-  return (
-    <AuthWelcome
-      onCreateAccount={handleCreateAccount}
-      onLogin={handleLogin}
-    />
-  );
+  return <AuthWelcome onCreateAccount={handleCreateAccount} onLogin={handleLogin} />;
 }

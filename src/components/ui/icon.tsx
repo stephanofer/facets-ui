@@ -4,14 +4,10 @@ import {
   CameraIcon,
   CaretLeftIcon,
   CaretRightIcon,
-  CheckCircleIcon,
   EyeIcon,
   EyeSlashIcon,
   ImageIcon,
-  InfoIcon,
   TrashIcon,
-  WarningCircleIcon,
-  XCircleIcon,
   XIcon,
 } from "phosphor-react-native";
 
@@ -33,15 +29,11 @@ const iconRegistry = {
   Camera: CameraIcon,
   CaretLeft: CaretLeftIcon,
   CaretRight: CaretRightIcon,
-  CheckCircle: CheckCircleIcon,
   Eye: EyeIcon,
   EyeSlash: EyeSlashIcon,
   Image: ImageIcon,
-  Info: InfoIcon,
   Trash: TrashIcon,
-  WarningCircle: WarningCircleIcon,
   X: XIcon,
-  XCircle: XCircleIcon,
 } as const;
 
 // ---------------------------------------------------------------------------

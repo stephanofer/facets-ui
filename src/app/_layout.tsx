@@ -14,7 +14,6 @@ import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { ToastHost } from "@/components/ui/toast/toast-host";
 import { colors } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { queryClient } from "@/lib/query-client";
@@ -146,7 +145,6 @@ function RootNavigator() {
         </Stack>
 
         <UnsafeAreaDebugOverlay />
-        <ToastHost />
       </View>
     </ThemeProvider>
   );
