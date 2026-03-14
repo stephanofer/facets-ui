@@ -87,10 +87,12 @@ export const refreshTokenSchema = z.object({
 });
 
 // ─── API Response Shapes ────────────────────────────────────────────
-export const planSchema = z.object({
+export const sessionPlanSchema = z.object({
   code: z.string(),
   name: z.string(),
 });
+
+export const planSchema = sessionPlanSchema;
 
 export const avatarSchema = z.object({
   id: z.string(),
@@ -100,7 +102,25 @@ export const avatarSchema = z.object({
   purpose: z.literal("AVATAR"),
 });
 
-export const userSchema = z.object({
+export const workspaceSummarySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.string(),
+  status: z.string(),
+});
+
+export const membershipSchema = z.object({
+  id: z.string(),
+  role: z.string(),
+  status: z.string(),
+  joinedAt: z.string().optional(),
+});
+
+export const workspaceRoleSchema = z.string().min(1);
+
+export const platformRoleSchema = z.string().min(1);
+
+export const canonicalUserSchema = z.object({
   id: z.string(),
   email: z.email(),
   firstName: z.string(),
@@ -109,7 +129,16 @@ export const userSchema = z.object({
   status: z.enum(["PENDING_VERIFICATION", "ACTIVE", "SUSPENDED", "DELETED"]),
   createdAt: z.string(),
   avatar: avatarSchema.nullish(),
-  plan: planSchema,
+});
+
+export const userSchema = canonicalUserSchema;
+
+export const sessionUserSchema = canonicalUserSchema.extend({
+  plan: sessionPlanSchema,
+  workspace: workspaceSummarySchema,
+  membership: membershipSchema,
+  workspaceRole: workspaceRoleSchema.optional(),
+  platformRole: platformRoleSchema,
 });
 
 export const tokensSchema = z.object({
@@ -120,16 +149,37 @@ export const tokensSchema = z.object({
 
 export const loginResponseSchema = z.object({
   tokens: tokensSchema,
-  user: userSchema,
+  user: sessionUserSchema,
 });
 
 export const registerResponseSchema = z.object({
   message: z.string(),
-  user: userSchema,
+  user: sessionUserSchema,
 });
 
 export const verifyEmailResponseSchema = z.object({
-  message: z.string(),
   tokens: tokensSchema,
-  user: userSchema,
+  user: sessionUserSchema,
+  message: z.string().optional(),
+});
+
+export const meResponseSchema = sessionUserSchema;
+
+export const logoutResponseSchema = z.object({
+  message: z.string(),
+});
+
+export const resendVerificationResponseSchema = z.object({
+  message: z.string(),
+});
+
+export const canonicalSessionSchema = z.object({
+  user: canonicalUserSchema,
+  workspace: workspaceSummarySchema,
+  membership: membershipSchema,
+  workspaceRole: workspaceRoleSchema,
+  platformRole: platformRoleSchema,
+  plan: sessionPlanSchema,
+  source: z.enum(["login", "verify-email", "me"]),
+  lastHydratedAt: z.string(),
 });

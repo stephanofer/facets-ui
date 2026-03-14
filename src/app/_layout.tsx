@@ -4,8 +4,7 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { router } from "expo-router";
-import { Stack } from "expo-router/stack";
+import { Stack } from "expo-router";
 import { ShareIntentProvider } from "expo-share-intent";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
@@ -15,8 +14,12 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors } from "@/constants/theme";
+import { SessionLockOverlay } from "@/features/auth/components/session-lock-overlay";
+import { useAuthBootstrap } from "@/features/auth/hooks/use-auth-bootstrap";
+import { useLocalAuthGuard } from "@/features/auth/hooks/use-local-auth-guard";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { queryClient } from "@/lib/query-client";
+import { AppToaster } from "@/lib/toast";
 import { useAuthStore } from "@/stores/auth-store";
 
 // Keep the native splash screen visible until we know the auth state.
@@ -63,30 +66,18 @@ function UnsafeAreaDebugOverlay() {
 
 function RootNavigator() {
   const { isDark } = useAppTheme();
-  const authStatus = useAuthStore((s) => s.status);
-  const initialize = useAuthStore((s) => s.initialize);
+  const bootstrapStatus = useAuthStore((s) => s.bootstrapStatus);
+  const { retryUnlock } = useLocalAuthGuard();
 
-  // Initialize auth state on mount
+  useAuthBootstrap();
+
   useEffect(() => {
-    initialize();
-  }, [initialize]);
-
-  // Navigate based on auth state only,
-  // then hide the splash screen once we know where to go.
-  useEffect(() => {
-    // Don't navigate until auth is resolved
-    if (authStatus === "loading") return;
-
-    if (authStatus === "unauthenticated") {
-      router.replace("/(auth)/welcome" as never);
-    } else if (authStatus === "authenticated") {
-      router.replace("/(tabs)/(home)" as never);
+    if (bootstrapStatus === "bootstrapping") {
+      return;
     }
 
-    // Auth state is resolved and navigation has been triggered.
-    // Hide the splash screen so the correct route is revealed.
     SplashScreen.hideAsync();
-  }, [authStatus]);
+  }, [bootstrapStatus]);
 
   const navigationTheme = isDark
     ? {
@@ -112,9 +103,7 @@ function RootNavigator() {
         },
       };
 
-  // Return nothing while loading — the native splash screen stays visible
-  // covering this completely. No ActivityIndicator needed.
-  if (authStatus === "loading") {
+  if (bootstrapStatus === "bootstrapping") {
     return null;
   }
 
@@ -132,26 +121,37 @@ function RootNavigator() {
             }),
           }}
         >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="(auth)"
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="profile-avatar-sheet"
-            options={{
-              presentation: "formSheet",
-              headerShown: false,
-              contentStyle: { backgroundColor: "transparent" },
-              sheetGrabberVisible: true,
-              sheetAllowedDetents: [0.38],
-              sheetLargestUndimmedDetentIndex: 0,
-            }}
-          />
+          <Stack.Protected
+            guard={
+              bootstrapStatus === "authenticated" ||
+              bootstrapStatus === "recovery-required"
+            }
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="profile-avatar-sheet"
+              options={{
+                presentation: "formSheet",
+                headerShown: false,
+                contentStyle: { backgroundColor: "transparent" },
+                sheetGrabberVisible: true,
+                sheetAllowedDetents: [0.38],
+                sheetLargestUndimmedDetentIndex: 0,
+              }}
+            />
+          </Stack.Protected>
+          <Stack.Protected guard={bootstrapStatus === "unauthenticated"}>
+            <Stack.Screen
+              name="(auth)"
+              options={{
+                headerShown: false,
+              }}
+            />
+          </Stack.Protected>
           <Stack.Screen name="+not-found" />
         </Stack>
+
+        <SessionLockOverlay onRetry={retryUnlock} />
 
         <UnsafeAreaDebugOverlay />
       </View>
@@ -164,7 +164,10 @@ export default function RootLayout() {
     <ShareIntentProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <QueryClientProvider client={queryClient}>
-          <RootNavigator />
+          <>
+            <RootNavigator />
+            <AppToaster />
+          </>
         </QueryClientProvider>
       </GestureHandlerRootView>
     </ShareIntentProvider>

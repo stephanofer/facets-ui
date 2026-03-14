@@ -5,7 +5,7 @@ import { queryKeys } from "@/constants/query-keys";
 import { deleteAvatar, uploadAvatar } from "@/features/auth/api/auth-api";
 import { useAuthStore } from "@/stores/auth-store";
 
-import type { User } from "@/features/auth/types";
+import type { CanonicalSession, User } from "@/features/auth/types";
 
 function notifySuccess() {
   if (process.env.EXPO_OS === "ios") {
@@ -21,13 +21,27 @@ function notifyError() {
 
 export function useUploadAvatar() {
   const queryClient = useQueryClient();
-  const setUser = useAuthStore((s) => s.setUser);
+  const updateSessionUser = useAuthStore((s) => s.updateSessionUser);
 
   return useMutation({
     mutationFn: (formData: FormData) => uploadAvatar(formData),
     onSuccess: (user) => {
-      setUser(user);
-      queryClient.setQueryData<User>(queryKeys.auth.me(), user);
+      updateSessionUser(user);
+      queryClient.setQueryData<CanonicalSession | undefined>(
+        queryKeys.auth.me(),
+        (currentSession) => {
+          if (!currentSession) {
+            return currentSession;
+          }
+
+          return {
+            ...currentSession,
+            user,
+            lastHydratedAt: new Date().toISOString(),
+          };
+        },
+      );
+
       notifySuccess();
     },
     onError: () => {
@@ -38,8 +52,8 @@ export function useUploadAvatar() {
 
 export function useDeleteAvatar() {
   const queryClient = useQueryClient();
-  const setUser = useAuthStore((s) => s.setUser);
-  const currentUser = useAuthStore((s) => s.user);
+  const updateSessionUser = useAuthStore((s) => s.updateSessionUser);
+  const currentUser = useAuthStore((s) => s.session?.user);
 
   return useMutation({
     mutationFn: () => deleteAvatar(),
@@ -50,8 +64,21 @@ export function useDeleteAvatar() {
           avatar: null,
         };
 
-        setUser(nextUser);
-        queryClient.setQueryData<User>(queryKeys.auth.me(), nextUser);
+        updateSessionUser(nextUser);
+        queryClient.setQueryData<CanonicalSession | undefined>(
+          queryKeys.auth.me(),
+          (currentSession) => {
+            if (!currentSession) {
+              return currentSession;
+            }
+
+            return {
+              ...currentSession,
+              user: nextUser,
+              lastHydratedAt: new Date().toISOString(),
+            };
+          },
+        );
       }
 
       queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });

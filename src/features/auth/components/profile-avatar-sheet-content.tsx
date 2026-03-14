@@ -1,18 +1,19 @@
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import { Alert, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Icon } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
 import { radius, spacing } from "@/constants/theme";
-import { ApiError } from "@/lib/api-client";
-import { useAppTheme } from "@/hooks/use-app-theme";
 import {
   useDeleteAvatar,
   useUploadAvatar,
 } from "@/features/auth/hooks/use-avatar-mutations";
+import { ApiError } from "@/lib/api-client";
+import { showErrorToast } from "@/lib/toast";
+import { useAppTheme } from "@/hooks/use-app-theme";
 
 import type { ImagePickerAsset, ImagePickerResult } from "expo-image-picker";
 
@@ -146,14 +147,14 @@ export function ProfileAvatarSheetContent({
   };
 
   const handleError = (error: unknown) => {
-    const message =
-      error instanceof ApiError
-        ? error.message
-        : error instanceof Error
-          ? error.message
-          : "No pudimos actualizar tu foto.";
+    if (error instanceof ApiError) {
+      return;
+    }
 
-    Alert.alert("No se pudo actualizar", message);
+    showErrorToast(
+      "No se pudo actualizar",
+      error instanceof Error ? error.message : "No pudimos actualizar tu foto.",
+    );
   };
 
   const handlePick = async (kind: "camera" | "gallery") => {

@@ -1,17 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { TextInput } from "react-native";
 
 import { FormInput } from "@/components/ui/form-input";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { Typography } from "@/components/ui/typography";
-import { spacing } from "@/constants/theme";
 import { AuthScreenLayout } from "@/features/auth/components/auth-screen-layout";
 import { useRegister } from "@/features/auth/hooks/use-register";
 import { registerPasswordSchema } from "@/features/auth/schemas/auth-schemas";
 import { ApiError } from "@/lib/api-client";
+import { showErrorToast, showNetworkToast, showWarningToast } from "@/lib/toast";
 import { useRegisterFlowStore } from "@/stores/register-flow-store";
 
 import type { RegisterPasswordForm } from "@/features/auth/types";
@@ -20,7 +19,6 @@ export default function RegisterPasswordScreen() {
   const confirmRef = useRef<TextInput>(null);
   const { firstName, lastName, email, setPassword } = useRegisterFlowStore();
   const register = useRegister();
-  const [serverError, setServerError] = useState("");
 
   const {
     control,
@@ -31,8 +29,11 @@ export default function RegisterPasswordScreen() {
     defaultValues: { password: "", confirmPassword: "" },
   });
 
+  const showRegisterErrorToast = (title: string, description: string) => {
+    showErrorToast(title, description);
+  };
+
   const onSubmit = (data: RegisterPasswordForm) => {
-    setServerError("");
     setPassword(data.password);
 
     register.mutate(
@@ -54,26 +55,32 @@ export default function RegisterPasswordScreen() {
           if (error instanceof ApiError) {
             switch (error.code) {
               case "EMAIL_ALREADY_EXISTS":
-                setServerError(
-                  "Este email ya está registrado. Intentá iniciar sesión.",
+                showRegisterErrorToast(
+                  "No pudimos crear la cuenta",
+                  "Este email ya esta registrado. Intenta iniciar sesion.",
                 );
                 break;
               case "VALIDATION_ERROR":
-                setServerError(
-                  error.details?.map((d) => d.message).join("\n") ??
+                showRegisterErrorToast(
+                  "Revisa los datos",
+                  error.details?.map((detail) => detail.message).join(". ") ??
                     error.message,
                 );
                 break;
               case "RATE_LIMIT_EXCEEDED":
-                setServerError(
+                showWarningToast(
+                  "Demasiados intentos",
                   "Demasiados intentos. Esperá un momento e intentá de nuevo.",
                 );
                 break;
               default:
-                setServerError(error.message || "Algo salió mal. Intentá de nuevo.");
+                showRegisterErrorToast(
+                  "Algo salio mal",
+                  error.message || "Intenta de nuevo.",
+                );
             }
           } else {
-            setServerError("Error de conexión. Verificá tu internet.");
+            showNetworkToast("Verifica tu internet e intenta de nuevo.");
           }
         },
       },
@@ -133,20 +140,6 @@ export default function RegisterPasswordScreen() {
           />
         )}
       />
-
-      {serverError !== "" && (
-        <Typography
-          size={14}
-          lineHeight={20}
-          weight="medium"
-          color="#EF4444"
-          selectable
-          align="center"
-          style={{ paddingTop: spacing.sm }}
-        >
-          {serverError}
-        </Typography>
-      )}
     </AuthScreenLayout>
   );
 }

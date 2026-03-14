@@ -9,11 +9,65 @@ import { Icon } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { radius, spacing } from "@/constants/theme";
+import { useAuthSession } from "@/features/auth/hooks/use-auth-session";
+import { useCurrentSubscription } from "@/features/subscriptions/hooks/use-current-subscription";
+import { useCurrentWorkspace } from "@/features/workspaces/hooks/use-current-workspace";
 import { useAppTheme } from "@/hooks/use-app-theme";
-import { useUser } from "@/features/auth/hooks/use-user";
-import { useAuthStore } from "@/stores/auth-store";
+import { ApiError } from "@/lib/api-client";
 
-function ProfileInfoRow({ label, value }: { label: string; value: string }) {
+function formatRoleLabel(value?: string | null) {
+  if (!value) {
+    return "-";
+  }
+
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((chunk) => chunk.charAt(0).toUpperCase() + chunk.slice(1))
+    .join(" ");
+}
+
+function formatWorkspaceType(value?: string | null) {
+  switch (value) {
+    case "PERSONAL":
+      return "Personal";
+    case "TEAM":
+      return "Equipo";
+    default:
+      return value ?? "-";
+  }
+}
+
+function formatStatusLabel(value?: string | null) {
+  switch (value) {
+    case "ACTIVE":
+      return "Activo";
+    case "SUSPENDED":
+      return "Suspendido";
+    case "PENDING_VERIFICATION":
+      return "Pendiente de verificacion";
+    default:
+      return value ?? "-";
+  }
+}
+
+function isRestrictedError(error: unknown) {
+  return error instanceof ApiError && error.status === 403;
+}
+
+function isUnavailableError(error: unknown) {
+  return error instanceof ApiError && error.status === 404;
+}
+
+function ProfileInfoRow({
+  label,
+  value,
+  tone = "default",
+}: {
+  label: string;
+  value: string;
+  tone?: "default" | "muted";
+}) {
   const { colors, isDark } = useAppTheme();
 
   return (
@@ -42,7 +96,7 @@ function ProfileInfoRow({ label, value }: { label: string; value: string }) {
       <Typography
         size={16}
         lineHeight={24}
-        color="text"
+        color={tone === "muted" ? "textMuted" : "text"}
         weight="bold"
         selectable
       >
@@ -53,15 +107,19 @@ function ProfileInfoRow({ label, value }: { label: string; value: string }) {
 }
 
 export default function ProfileScreen() {
-  const { colors } = useAppTheme();
+  const { colors, semantic } = useAppTheme();
   const insets = useSafeAreaInsets();
-  const { data: user } = useUser();
-  const localUser = useAuthStore((s) => s.user);
+  const { data: session } = useAuthSession();
+  const workspaceQuery = useCurrentWorkspace();
+  const subscriptionQuery = useCurrentSubscription();
 
-  const displayUser = user ?? localUser;
+  const displayUser = session?.user;
   const fullName = [displayUser?.firstName, displayUser?.lastName]
     .filter(Boolean)
     .join(" ");
+  const workspaceName = workspaceQuery.data?.workspace.name ?? session?.workspace.name ?? "-";
+  const workspaceType = workspaceQuery.data?.workspace.type ?? session?.workspace.type;
+  const planName = subscriptionQuery.data?.subscription.plan.name ?? session?.plan.name ?? "-";
 
   const handleTapAvatar = () => {
     if (process.env.EXPO_OS === "ios") {
@@ -75,8 +133,7 @@ export default function ProfileScreen() {
       style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={{
         paddingHorizontal: spacing.xl,
-        paddingTop:
-          process.env.EXPO_OS === "android" ? insets.top + spacing.md : spacing.md,
+        paddingTop: process.env.EXPO_OS === "android" ? insets.top + spacing.md : spacing.md,
         paddingBottom: insets.bottom + spacing["4xl"],
         gap: spacing.xl,
       }}
@@ -143,20 +200,58 @@ export default function ProfileScreen() {
             selectable
             align="center"
           >
-            {displayUser?.email ?? "—"}
+            {displayUser?.email ?? "-"}
+          </Typography>
+          <Typography size={14} lineHeight={20} color="textMuted" align="center">
+            {workspaceName}
           </Typography>
         </View>
       </Animated.View>
 
       <Animated.View entering={FadeInDown.duration(220).delay(80)} style={{ gap: spacing.md }}>
-        <ProfileInfoRow label="Plan" value={displayUser?.plan.name ?? "—"} />
-        <ProfileInfoRow
-          label="Estado"
-          value={displayUser?.status === "ACTIVE" ? "Activa" : displayUser?.status ?? "—"}
-        />
-        <ProfileInfoRow label="Nombre" value={fullName || "—"} />
-        <ProfileInfoRow label="Correo" value={displayUser?.email ?? "—"} />
+        <ProfileInfoRow label="Plan" value={planName} />
+        <ProfileInfoRow label="Rol plataforma" value={formatRoleLabel(session?.platformRole)} />
+        <ProfileInfoRow label="Rol workspace" value={formatRoleLabel(session?.workspaceRole)} />
+        <ProfileInfoRow label="Workspace" value={workspaceName} />
+        <ProfileInfoRow label="Tipo de workspace" value={formatWorkspaceType(workspaceType)} />
+        <ProfileInfoRow label="Estado usuario" value={formatStatusLabel(displayUser?.status)} />
+        <ProfileInfoRow label="Estado membresia" value={formatStatusLabel(session?.membership.status)} />
       </Animated.View>
+
+      {workspaceQuery.error && isRestrictedError(workspaceQuery.error) ? (
+        <View
+          style={{
+            padding: spacing.lg,
+            borderRadius: radius.lg,
+            borderCurve: "continuous",
+            backgroundColor: semantic.warningSoft,
+            gap: spacing.xs,
+          }}
+        >
+          <Typography size={16} lineHeight={24} weight="bold" color={semantic.warning}>
+            Perfil restringido por workspace
+          </Typography>
+          <Typography size={14} lineHeight={20} color="text">
+            Tu sesion sigue bien, pero algunos datos compartidos del workspace no estan disponibles para tu rol actual.
+          </Typography>
+        </View>
+      ) : null}
+
+      {workspaceQuery.error && isUnavailableError(workspaceQuery.error) ? (
+        <ProfileInfoRow
+          label="Workspace"
+          value="El detalle del workspace no esta disponible en este momento."
+          tone="muted"
+        />
+      ) : null}
+
+      {subscriptionQuery.error && isRestrictedError(subscriptionQuery.error) ? (
+        <ProfileInfoRow
+          label="Billing"
+          value="El detalle de billing y gestion del plan queda reservado para admins del workspace."
+          tone="muted"
+        />
+      ) : null}
     </ScrollView>
   );
 }

@@ -1,24 +1,22 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { TextInput } from "react-native";
 
 import { FormInput } from "@/components/ui/form-input";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { Typography } from "@/components/ui/typography";
-import { spacing } from "@/constants/theme";
 import { AuthScreenLayout } from "@/features/auth/components/auth-screen-layout";
 import { useLogin } from "@/features/auth/hooks/use-login";
 import { loginSchema } from "@/features/auth/schemas/auth-schemas";
 import { ApiError } from "@/lib/api-client";
+import { showErrorToast, showNetworkToast, showWarningToast } from "@/lib/toast";
 
 import type { LoginRequest } from "@/features/auth/types";
 
 export default function LoginScreen() {
   const passwordRef = useRef<TextInput>(null);
   const login = useLogin();
-  const [serverError, setServerError] = useState("");
 
   const {
     control,
@@ -30,9 +28,11 @@ export default function LoginScreen() {
     defaultValues: { email: "", password: "" },
   });
 
-  const onSubmit = (data: LoginRequest) => {
-    setServerError("");
+  const showLoginErrorToast = (title: string, description: string) => {
+    showErrorToast(title, description);
+  };
 
+  const onSubmit = (data: LoginRequest) => {
     login.mutate(data, {
       onSuccess: () => {
         // Belt-and-suspenders: the root layout also watches authStatus,
@@ -54,32 +54,44 @@ export default function LoginScreen() {
               });
               break;
             case "INVALID_CREDENTIALS":
-              setServerError("Email o contraseña incorrectos");
+              showLoginErrorToast(
+                "No pudimos iniciar sesion",
+                "Email o contrasena incorrectos.",
+              );
               break;
             case "ACCOUNT_SUSPENDED":
-              setServerError(
-                "Tu cuenta ha sido suspendida. Contactá soporte.",
+              showLoginErrorToast(
+                "No pudimos iniciar sesion",
+                "Tu cuenta ha sido suspendida. Contacta soporte.",
               );
               break;
             case "ACCOUNT_DELETED":
-              setServerError("Esta cuenta ya no existe.");
+              showLoginErrorToast(
+                "No pudimos iniciar sesion",
+                "Esta cuenta ya no existe.",
+              );
               break;
             case "RATE_LIMIT_EXCEEDED":
-              setServerError(
+              showWarningToast(
+                "Demasiados intentos",
                 "Demasiados intentos. Esperá un momento e intentá de nuevo.",
               );
               break;
             case "VALIDATION_ERROR":
-              setServerError(
-                error.details?.map((d) => d.message).join("\n") ??
+              showLoginErrorToast(
+                "Revisa los datos",
+                error.details?.map((detail) => detail.message).join(". ") ??
                   error.message,
               );
               break;
             default:
-              setServerError(error.message || "Algo salió mal. Intentá de nuevo.");
+              showLoginErrorToast(
+                "Algo salio mal",
+                error.message || "Intenta de nuevo.",
+              );
           }
         } else {
-          setServerError("Error de conexión. Verificá tu internet.");
+          showNetworkToast("Verifica tu internet e intenta de nuevo.");
         }
       },
     });
@@ -139,20 +151,6 @@ export default function LoginScreen() {
           />
         )}
       />
-
-      {serverError !== "" && (
-        <Typography
-          size={14}
-          lineHeight={20}
-          weight="medium"
-          color="#EF4444"
-          selectable
-          align="center"
-          style={{ paddingTop: spacing.sm }}
-        >
-          {serverError}
-        </Typography>
-      )}
     </AuthScreenLayout>
   );
 }

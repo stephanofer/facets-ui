@@ -14,6 +14,27 @@ import { useAppTheme } from "@/hooks/use-app-theme";
 import { ApiError } from "@/lib/api-client";
 
 const RESEND_COOLDOWN_SECONDS = 60;
+const VERIFY_RETRY_COOLDOWN_SECONDS = 30;
+
+function getCooldownFromMessage(message?: string, fallback = VERIFY_RETRY_COOLDOWN_SECONDS) {
+  if (!message) {
+    return fallback;
+  }
+
+  const secondsMatch = message.match(/(\d+)\s*s/i);
+
+  if (secondsMatch) {
+    return Number(secondsMatch[1]);
+  }
+
+  const digitsMatch = message.match(/(\d+)/);
+
+  if (digitsMatch) {
+    return Number(digitsMatch[1]);
+  }
+
+  return fallback;
+}
 
 export default function VerifyEmailScreen() {
   const { email, source } = useLocalSearchParams<{
@@ -47,7 +68,7 @@ export default function VerifyEmailScreen() {
 
   const handleComplete = useCallback(
     (code: string) => {
-      if (!email) return;
+      if (!email || cooldown > 0 || verifyEmail.isPending) return;
       setOtpError("");
 
       verifyEmail.mutate(
@@ -64,7 +85,19 @@ export default function VerifyEmailScreen() {
                   break;
                 case "OTP_MAX_ATTEMPTS":
                   setOtpError("Demasiados intentos. Pedí un nuevo código.");
+                  setCooldown(VERIFY_RETRY_COOLDOWN_SECONDS);
                   break;
+                case "OTP_COOLDOWN":
+                case "OTP_RATE_LIMITED": {
+                  const nextCooldown = getCooldownFromMessage(error.message);
+                  setCooldown(nextCooldown);
+                  setOtpError(
+                    error.code === "OTP_RATE_LIMITED"
+                      ? `Esperá ${nextCooldown}s antes de volver a intentar o reenviar.`
+                      : error.message || `Esperá ${nextCooldown}s antes de volver a intentar.`,
+                  );
+                  break;
+                }
                 case "EMAIL_ALREADY_VERIFIED":
                   // Already verified — the session was set, will redirect
                   break;
@@ -79,7 +112,7 @@ export default function VerifyEmailScreen() {
         },
       );
     },
-    [email, verifyEmail],
+    [cooldown, email, verifyEmail],
   );
 
   const handleResend = () => {
@@ -95,9 +128,19 @@ export default function VerifyEmailScreen() {
       onError: (error) => {
         if (error instanceof ApiError) {
           if (error.code === "OTP_COOLDOWN") {
-            setCooldown(30);
+            const nextCooldown = getCooldownFromMessage(
+              error.message,
+              VERIFY_RETRY_COOLDOWN_SECONDS,
+            );
+            setCooldown(nextCooldown);
+            setOtpError(`Esperá ${nextCooldown}s antes de volver a intentar o reenviar.`);
           } else if (error.code === "OTP_RATE_LIMITED") {
-            setOtpError("Superaste el límite de intentos por hora.");
+            const nextCooldown = getCooldownFromMessage(
+              error.message,
+              RESEND_COOLDOWN_SECONDS,
+            );
+            setCooldown(nextCooldown);
+            setOtpError(`Superaste el límite. Esperá ${nextCooldown}s antes de volver a intentar.`);
           }
         }
       },
@@ -115,7 +158,7 @@ export default function VerifyEmailScreen() {
       <OtpInput
         onComplete={handleComplete}
         error={otpError}
-        disabled={verifyEmail.isPending}
+        disabled={verifyEmail.isPending || cooldown > 0}
       />
 
       {/* Resend link */}

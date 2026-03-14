@@ -3,6 +3,17 @@ export const queryKeys = {
     all: ["auth"] as const,
     me: () => [...queryKeys.auth.all, "me"] as const,
   },
+  workspaces: {
+    all: ["workspaces"] as const,
+    current: () => [...queryKeys.workspaces.all, "current"] as const,
+    currentSettings: () =>
+      [...queryKeys.workspaces.current(), "settings"] as const,
+  },
+  subscriptions: {
+    all: ["subscriptions"] as const,
+    current: () => [...queryKeys.subscriptions.all, "current"] as const,
+    usage: () => [...queryKeys.subscriptions.all, "usage"] as const,
+  },
   transactions: {
     all: ["transactions"] as const,
     lists: () => [...queryKeys.transactions.all, "list"] as const,

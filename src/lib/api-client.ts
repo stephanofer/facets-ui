@@ -1,50 +1,82 @@
-import * as SecureStore from "expo-secure-store";
+import { invalidateSession } from "@/lib/session-manager";
+import { ApiError } from "@/lib/api-error";
+import { tokenStorage } from "@/lib/token-storage";
+import { normalizeSessionUser } from "@/features/auth/normalize-session";
+import { meResponseSchema } from "@/features/auth/schemas/auth-schemas";
+import { queryKeys } from "@/constants/query-keys";
+
+import type { CanonicalSession } from "@/features/auth/types";
+import type { BootstrapStatus } from "@/stores/auth-store";
+import { useAuthStore } from "@/stores/auth-store";
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+export { ApiError } from "@/lib/api-error";
 
-// ─── Secure Storage Keys ─────────────────────────────────────────────
-const TOKEN_KEYS = {
-  access: "auth_access_token",
-  refresh: "auth_refresh_token",
-} as const;
+type RequestMode = "public" | "protected" | "refresh";
 
-// ─── Token Management ────────────────────────────────────────────────
-export const tokenStorage = {
-  getAccessToken: () => SecureStore.getItemAsync(TOKEN_KEYS.access),
-  getRefreshToken: () => SecureStore.getItemAsync(TOKEN_KEYS.refresh),
-  setTokens: async (accessToken: string, refreshToken: string) => {
-    await SecureStore.setItemAsync(TOKEN_KEYS.access, accessToken);
-    await SecureStore.setItemAsync(TOKEN_KEYS.refresh, refreshToken);
-  },
-  clearTokens: async () => {
-    await SecureStore.deleteItemAsync(TOKEN_KEYS.access);
-    await SecureStore.deleteItemAsync(TOKEN_KEYS.refresh);
-  },
+type RefreshTokensResponse = {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
 };
 
-// ─── Error Class ─────────────────────────────────────────────────────
-export class ApiError extends Error {
-  constructor(
-    message: string,
-    public status: number,
-    public code?: string,
-    public details?: { message: string }[],
-  ) {
-    super(message);
-    this.name = "ApiError";
-  }
-}
-
-// ─── Auth Header ─────────────────────────────────────────────────────
-async function getAuthHeaders(): Promise<Record<string, string>> {
-  const token = await tokenStorage.getAccessToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
+type SessionRehydrationResult = {
+  status: BootstrapStatus;
+  session?: CanonicalSession;
+  error?: ApiError;
+};
 
 // ─── Token Refresh (single concurrent refresh) ──────────────────────
-let refreshPromise: Promise<boolean> | null = null;
+let refreshPromise: Promise<SessionRehydrationResult> | null = null;
+let sessionRehydrationPromise: Promise<SessionRehydrationResult> | null = null;
 
-async function refreshTokens(): Promise<boolean> {
+async function rehydrateCanonicalSession(): Promise<SessionRehydrationResult> {
+  if (sessionRehydrationPromise) {
+    return sessionRehydrationPromise;
+  }
+
+  sessionRehydrationPromise = (async () => {
+    try {
+      const response = await request<unknown>(
+        "/auth/me",
+        {},
+        "protected",
+        false,
+      );
+      const session = normalizeSessionUser(meResponseSchema.parse(response), "me");
+
+      const { queryClient } = await import("@/lib/query-client");
+
+      queryClient.setQueryData(queryKeys.auth.me(), session);
+      useAuthStore.getState().setSession(session);
+
+      return {
+        status: "authenticated",
+        session,
+      };
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        await invalidateSession("session-expired");
+
+        return {
+          status: "unauthenticated",
+        };
+      }
+
+      useAuthStore.getState().requireBootstrapRecovery();
+
+      return {
+        status: "recovery-required",
+      };
+    } finally {
+      sessionRehydrationPromise = null;
+    }
+  })();
+
+  return sessionRehydrationPromise;
+}
+
+async function refreshTokens(): Promise<SessionRehydrationResult> {
   // If already refreshing, wait for the existing refresh
   if (refreshPromise) {
     return refreshPromise;
@@ -53,26 +85,45 @@ async function refreshTokens(): Promise<boolean> {
   refreshPromise = (async () => {
     try {
       const refreshToken = await tokenStorage.getRefreshToken();
-      if (!refreshToken) return false;
-
-      const response = await fetch(`${BASE_URL}/auth/refresh`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refreshToken }),
-      });
-
-      if (!response.ok) {
-        await tokenStorage.clearTokens();
-        return false;
+      if (!refreshToken) {
+        return {
+          status: "unauthenticated",
+        };
       }
 
-      const json = await response.json();
-      const data = json.data;
+      const data = await request<RefreshTokensResponse>(
+        "/auth/refresh",
+        {
+          method: "POST",
+          body: JSON.stringify({ refreshToken }),
+        },
+        "refresh",
+      );
+
       await tokenStorage.setTokens(data.accessToken, data.refreshToken);
-      return true;
-    } catch {
-      await tokenStorage.clearTokens();
-      return false;
+
+      return rehydrateCanonicalSession();
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        return {
+          status: "unauthenticated",
+          error,
+        };
+      }
+
+      useAuthStore.getState().requireBootstrapRecovery();
+
+      return {
+        status: "recovery-required",
+        error:
+          error instanceof ApiError
+            ? error
+            : new ApiError(
+                "No pudimos rehidratar tu sesión.",
+                0,
+                "SESSION_REHYDRATION_FAILED",
+              ),
+      };
     } finally {
       refreshPromise = null;
     }
@@ -81,28 +132,51 @@ async function refreshTokens(): Promise<boolean> {
   return refreshPromise;
 }
 
+async function buildHeaders(
+  mode: RequestMode,
+  options: RequestInit,
+): Promise<Headers> {
+  const headers = new Headers(options.headers);
+  const isFormDataBody = options.body instanceof FormData;
+
+  if (mode === "protected") {
+    const accessToken = await tokenStorage.getAccessToken();
+
+    if (accessToken) {
+      headers.set("Authorization", `Bearer ${accessToken}`);
+    }
+  }
+
+  if (
+    !isFormDataBody &&
+    !headers.has("Content-Type") &&
+    !headers.has("content-type")
+  ) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  return headers;
+}
+
 // ─── Core Client ─────────────────────────────────────────────────────
 async function request<T>(
   path: string,
   options: RequestInit = {},
-  retry = true,
+  mode: RequestMode = "protected",
+  allowRefresh = mode === "protected",
 ): Promise<T> {
-  const authHeaders = await getAuthHeaders();
-  const isFormDataBody = options.body instanceof FormData;
-  const headers = new Headers(options.headers);
+  const headers = await buildHeaders(mode, options);
 
-  Object.entries(authHeaders).forEach(([key, value]) => {
-    headers.set(key, value);
-  });
+  let response: Response;
 
-  if (!isFormDataBody && !headers.has("Content-Type") && !headers.has("content-type")) {
-    headers.set("Content-Type", "application/json");
+  try {
+    response = await fetch(`${BASE_URL}${path}`, {
+      ...options,
+      headers,
+    });
+  } catch {
+    throw new ApiError("Error de conexión", 0, "NETWORK_ERROR");
   }
-
-  const response = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    headers,
-  });
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({
@@ -111,12 +185,27 @@ async function request<T>(
 
     const error = body.error ?? {};
 
-    // If 401 and we can retry — attempt token refresh
-    if (response.status === 401 && retry) {
-      const refreshed = await refreshTokens();
-      if (refreshed) {
-        return request<T>(path, options, false);
+    if (response.status === 401 && mode === "protected" && allowRefresh) {
+      const refreshResult = await refreshTokens();
+
+      if (refreshResult.status === "authenticated") {
+        return request<T>(path, options, "protected", false);
       }
+
+      if (refreshResult.status === "recovery-required") {
+        throw (
+          refreshResult.error ??
+          new ApiError(
+            "No pudimos rehidratar tu sesión.",
+            0,
+            "SESSION_REHYDRATION_FAILED",
+          )
+        );
+      }
+    }
+
+    if (response.status === 401 && mode === "protected") {
+      await invalidateSession("session-expired");
     }
 
     throw new ApiError(
@@ -131,7 +220,6 @@ async function request<T>(
     return undefined as T;
   }
 
-  // Unwrap the standard API response: { success, data, meta }
   const json = await response.json();
   return json.data as T;
 }
@@ -141,17 +229,14 @@ export function apiClient<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  return request<T>(path, options);
+  return request<T>(path, options, "protected");
 }
 
-// For endpoints that should NOT trigger token refresh (login, register, etc.)
-export function apiClientNoAuth<T>(
+export function apiClientPublic<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  return request<T>(
-    path,
-    { ...options, headers: new Headers(options.headers) },
-    false,
-  );
+  return request<T>(path, options, "public", false);
 }
+
+export const apiClientNoAuth = apiClientPublic;

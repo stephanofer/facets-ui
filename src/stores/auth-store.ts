@@ -1,52 +1,81 @@
 import { create } from "zustand";
 
-import { tokenStorage } from "@/lib/api-client";
+import type { CanonicalSession, User } from "@/features/auth/types";
 
-import type { User, Tokens } from "@/features/auth/types";
+export type BootstrapStatus =
+  | "bootstrapping"
+  | "authenticated"
+  | "unauthenticated"
+  | "recovery-required";
 
-type AuthStatus = "loading" | "authenticated" | "unauthenticated";
+export type SessionSource = "login" | "verify-email" | "me";
+
+export type SessionInvalidationReason =
+  | "missing-tokens"
+  | "session-expired"
+  | "manual-logout"
+  | "bootstrap-failed";
 
 interface AuthState {
-  status: AuthStatus;
-  user: User | null;
-
-  // Actions
-  initialize: () => Promise<void>;
-  setSession: (tokens: Tokens, user: User) => Promise<void>;
-  setUser: (user: User) => void;
-  logout: () => Promise<void>;
+  bootstrapStatus: BootstrapStatus;
+  session: CanonicalSession | null;
+  lastInvalidationReason: SessionInvalidationReason | null;
+  initializeSession: () => void;
+  setSession: (session: CanonicalSession) => void;
+  requireBootstrapRecovery: () => void;
+  updateSessionUser: (user: User) => void;
+  clearSession: (reason: SessionInvalidationReason) => void;
 }
 
 export const useAuthStore = create<AuthState>()((set) => ({
-  status: "loading",
-  user: null,
+  bootstrapStatus: "bootstrapping",
+  session: null,
+  lastInvalidationReason: null,
 
-  initialize: async () => {
-    try {
-      const accessToken = await tokenStorage.getAccessToken();
-      if (accessToken) {
-        // We have a token — mark as authenticated
-        // The actual user data will be fetched by useUser query
-        set({ status: "authenticated" });
-      } else {
-        set({ status: "unauthenticated", user: null });
+  initializeSession: () => {
+    set({
+      bootstrapStatus: "bootstrapping",
+      lastInvalidationReason: null,
+    });
+  },
+
+  setSession: (session) => {
+    set({
+      bootstrapStatus: "authenticated",
+      lastInvalidationReason: null,
+      session,
+    });
+  },
+
+  requireBootstrapRecovery: () => {
+    set({
+      bootstrapStatus: "recovery-required",
+      session: null,
+      lastInvalidationReason: "bootstrap-failed",
+    });
+  },
+
+  updateSessionUser: (user) => {
+    set((state) => {
+      if (!state.session) {
+        return state;
       }
-    } catch {
-      set({ status: "unauthenticated", user: null });
-    }
+
+      return {
+        session: {
+          ...state.session,
+          user,
+          lastHydratedAt: new Date().toISOString(),
+        },
+      };
+    });
   },
 
-  setSession: async (tokens, user) => {
-    await tokenStorage.setTokens(tokens.accessToken, tokens.refreshToken);
-    set({ status: "authenticated", user });
-  },
-
-  setUser: (user) => {
-    set({ user });
-  },
-
-  logout: async () => {
-    await tokenStorage.clearTokens();
-    set({ status: "unauthenticated", user: null });
+  clearSession: (reason) => {
+    set({
+      bootstrapStatus: "unauthenticated",
+      session: null,
+      lastInvalidationReason: reason,
+    });
   },
 }));
