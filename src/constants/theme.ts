@@ -52,29 +52,180 @@ export const radius = {
 } as const;
 
 export const fontFamily = {
-  regular: "Satoshi-Regular",
-  medium: "Satoshi-Medium",
-  bold: "Satoshi-Bold",
+  interRegular: "Inter-Regular",
+  interMedium: "Inter-Medium",
+  interSemibold: "Inter-SemiBold",
+  interBold: "Inter-Bold",
+  clashMedium: "ClashDisplay-Medium",
+  clashSemibold: "ClashDisplay-Semibold",
+  debugMonospace: process.env.EXPO_OS === "ios" ? "Menlo" : "monospace",
 } as const;
 
-export const fonts = {
-  sizes: {
-    xs: 12,
-    sm: 14,
-    md: 16,
-    lg: 18,
-    xl: 20,
-    "2xl": 24,
-    "3xl": 30,
-    "4xl": 36,
+export type TypographyWeight = "regular" | "medium" | "semibold" | "bold";
+export type TypographyFamilyRole = "product" | "display";
+export type TypographyNumeric = "default" | "tabular";
+export type TypographyRole =
+  | "default"
+  | "brandMark"
+  | "avatarInitials"
+  | "debugMonospace";
+
+type TypographyVariantConfig = {
+  fontSize: number;
+  lineHeight: number;
+  letterSpacing: number;
+  defaultFamilyRole: TypographyFamilyRole;
+  defaultWeight: TypographyWeight;
+  textTransform?: "uppercase";
+};
+
+type TypographyRoleConfig = {
+  familyRole?: TypographyFamilyRole;
+  weight?: TypographyWeight;
+  letterSpacing?: number;
+  textTransform?: "uppercase";
+  fontFamily?: string;
+};
+
+export const typography = {
+  familyRoles: {
+    product: {
+      regular: fontFamily.interRegular,
+      medium: fontFamily.interMedium,
+      semibold: fontFamily.interSemibold,
+      bold: fontFamily.interBold,
+    },
+    display: {
+      medium: fontFamily.clashMedium,
+      semibold: fontFamily.clashSemibold,
+    },
   },
-  weights: {
-    regular: "400" as const,
-    medium: "500" as const,
-    semibold: "600" as const,
-    bold: "700" as const,
+  variants: {
+    h1: {
+      fontSize: 30,
+      lineHeight: 38,
+      letterSpacing: -0.6,
+      defaultFamilyRole: "product",
+      defaultWeight: "bold",
+    },
+    h2: {
+      fontSize: 24,
+      lineHeight: 32,
+      letterSpacing: -0.4,
+      defaultFamilyRole: "product",
+      defaultWeight: "bold",
+    },
+    h3: {
+      fontSize: 20,
+      lineHeight: 28,
+      letterSpacing: -0.25,
+      defaultFamilyRole: "product",
+      defaultWeight: "bold",
+    },
+    subtitle: {
+      fontSize: 18,
+      lineHeight: 26,
+      letterSpacing: 0,
+      defaultFamilyRole: "product",
+      defaultWeight: "medium",
+    },
+    body: {
+      fontSize: 16,
+      lineHeight: 24,
+      letterSpacing: 0,
+      defaultFamilyRole: "product",
+      defaultWeight: "regular",
+    },
+    bodyMedium: {
+      fontSize: 16,
+      lineHeight: 24,
+      letterSpacing: 0,
+      defaultFamilyRole: "product",
+      defaultWeight: "medium",
+    },
+    label: {
+      fontSize: 14,
+      lineHeight: 20,
+      letterSpacing: 0,
+      defaultFamilyRole: "product",
+      defaultWeight: "medium",
+    },
+    caption: {
+      fontSize: 14,
+      lineHeight: 20,
+      letterSpacing: 0,
+      defaultFamilyRole: "product",
+      defaultWeight: "regular",
+    },
+    small: {
+      fontSize: 12,
+      lineHeight: 16,
+      letterSpacing: 0.1,
+      defaultFamilyRole: "product",
+      defaultWeight: "medium",
+    },
+    eyebrow: {
+      fontSize: 12,
+      lineHeight: 16,
+      letterSpacing: 0.8,
+      defaultFamilyRole: "product",
+      defaultWeight: "medium",
+      textTransform: "uppercase",
+    },
+  } satisfies Record<string, TypographyVariantConfig>,
+  roles: {
+    default: {},
+    brandMark: {
+      familyRole: "display",
+      weight: "semibold",
+      letterSpacing: 1.8,
+      textTransform: "uppercase",
+    },
+    avatarInitials: {
+      familyRole: "product",
+      weight: "semibold",
+    },
+    debugMonospace: {
+      fontFamily: fontFamily.debugMonospace,
+    },
+  } satisfies Record<TypographyRole, TypographyRoleConfig>,
+  native: {
+    controlText: {
+      fontFamily: fontFamily.interMedium,
+      fontSize: 16,
+      lineHeight: 24,
+    },
+    tabLabel: {
+      fontFamily: fontFamily.interMedium,
+      fontSize: 13,
+      lineHeight: 18,
+    },
+  },
+  numeric: {
+    default: undefined,
+    tabular: ["tabular-nums"],
   },
 } as const;
+
+export type TypographyVariant = keyof typeof typography.variants;
+
+const displayWeightMap: Record<TypographyWeight, keyof typeof typography.familyRoles.display> = {
+  regular: "medium",
+  medium: "medium",
+  semibold: "semibold",
+  bold: "semibold",
+};
+
+export function getFontFamilyForRole(
+  role: TypographyFamilyRole,
+  weight: TypographyWeight,
+) {
+  if (role === "display") {
+    return typography.familyRoles.display[displayWeightMap[weight]];
+  }
+
+  return typography.familyRoles.product[weight];
+}
 
 export type ThemeColors = {
   [K in keyof typeof colors.light]: string;

@@ -11,12 +11,18 @@
       "bundleIdentifier": "com.stephanofer.facets",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
+      },
+      "icon": {
+        "dark": "./assets/images/ios-dark.png",
+        "light": "./assets/images/ios-light.png",
+        "tinted": "./assets/images/ios-tinted.png"
       }
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#000000",
-        "foregroundImage": "./assets/images/android-icon-foreground.png"
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "monochromeImage": "./assets/images/monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.stephanofer.facets"
@@ -27,18 +33,26 @@
         "expo-font",
         {
           "fonts": [
-            "./assets/fonts/Satoshi-Regular.otf",
-            "./assets/fonts/Satoshi-Medium.otf",
-            "./assets/fonts/Satoshi-Bold.otf"
+            "./assets/fonts/Inter-Regular.ttf",
+            "./assets/fonts/Inter-Medium.ttf",
+            "./assets/fonts/Inter-SemiBold.ttf",
+            "./assets/fonts/Inter-Bold.ttf",
+            "./assets/fonts/ClashDisplay-Medium.otf",
+            "./assets/fonts/ClashDisplay-Semibold.otf"
           ]
         }
       ],
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#000000",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200
+          "image": "./assets/images/splash-icon-dark.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff",
+          "dark": {
+            "image": "./assets/images/splash-icon-light.png",
+            "backgroundColor": "#000000"
+          }
         }
       ],
       [
@@ -96,7 +110,7 @@
         "expo-notifications",
         {
           "icon": "./assets/images/notification-icon.png",
-          "color": "#d4ef5c"
+          "color": "#ffffff"
         }
       ]
     ],

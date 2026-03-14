@@ -2,33 +2,40 @@ import { forwardRef } from "react";
 import { Text } from "react-native";
 import Animated from "react-native-reanimated";
 
-import { fontFamily, semanticColors } from "@/constants/theme";
+import {
+  getFontFamilyForRole,
+  semanticColors,
+  typography,
+} from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 
-import type { TextProps } from "react-native";
-import type { ThemeColorKey, SemanticColorKey } from "@/constants/theme";
+import type { FontVariant, TextProps, TextStyle } from "react-native";
+import type {
+  SemanticColorKey,
+  ThemeColorKey,
+  TypographyFamilyRole,
+  TypographyNumeric,
+  TypographyRole,
+  TypographyVariant,
+  TypographyWeight,
+} from "@/constants/theme";
 
-// ---------------------------------------------------------------------------
-// Variant Configuration
-// ---------------------------------------------------------------------------
-// Each variant defines a complete text style: font family, size, line height,
-// and letter spacing. Variants are the PRIMARY way to style text.
-// ---------------------------------------------------------------------------
+type ResolvedVariantConfig = {
+  fontSize: number;
+  lineHeight: number;
+  letterSpacing: number;
+  defaultFamilyRole: TypographyFamilyRole;
+  defaultWeight: TypographyWeight;
+  textTransform?: TextStyle["textTransform"];
+};
 
-const variantConfig = {
-  h1: { fontFamily: fontFamily.bold, fontSize: 30, lineHeight: 38, letterSpacing: -0.3 },
-  h2: { fontFamily: fontFamily.bold, fontSize: 24, lineHeight: 32, letterSpacing: -0.2 },
-  h3: { fontFamily: fontFamily.bold, fontSize: 20, lineHeight: 28, letterSpacing: -0.1 },
-  subtitle: { fontFamily: fontFamily.medium, fontSize: 18, lineHeight: 26, letterSpacing: 0 },
-  body: { fontFamily: fontFamily.regular, fontSize: 16, lineHeight: 24, letterSpacing: 0 },
-  bodyMedium: { fontFamily: fontFamily.medium, fontSize: 16, lineHeight: 24, letterSpacing: 0 },
-  label: { fontFamily: fontFamily.medium, fontSize: 14, lineHeight: 20, letterSpacing: 0.1 },
-  caption: { fontFamily: fontFamily.regular, fontSize: 14, lineHeight: 20, letterSpacing: 0 },
-  small: { fontFamily: fontFamily.medium, fontSize: 12, lineHeight: 16, letterSpacing: 0.2 },
-} as const;
-
-type TypographyVariant = keyof typeof variantConfig;
-type FontWeight = keyof typeof fontFamily;
+type ResolvedRoleConfig = {
+  familyRole?: TypographyFamilyRole;
+  weight?: TypographyWeight;
+  letterSpacing?: number;
+  textTransform?: TextStyle["textTransform"];
+  fontFamily?: string;
+};
 
 // ---------------------------------------------------------------------------
 // Props
@@ -38,11 +45,17 @@ interface TypographyProps extends TextProps {
   /** Predefined text style — pick the right one for the context */
   variant?: TypographyVariant;
   /** Override the variant's default font weight */
-  weight?: FontWeight;
+  weight?: TypographyWeight;
   /** Theme color key, semantic color key, or raw color string */
   color?: ThemeColorKey | SemanticColorKey | (string & {});
   /** Text alignment shorthand */
   align?: "left" | "center" | "right";
+  /** Sanctioned family override. Display is ONLY for low-density emphasis surfaces. */
+  familyRole?: TypographyFamilyRole;
+  /** Approved semantic roles for governed exceptions. */
+  textRole?: TypographyRole;
+  /** Approved numeric rendering mode. */
+  numeric?: TypographyNumeric;
 }
 
 // ---------------------------------------------------------------------------
@@ -51,14 +64,25 @@ interface TypographyProps extends TextProps {
 
 export const Typography = forwardRef<Text, TypographyProps>(
   function Typography(
-    { variant = "body", weight, color, align, style, children, ...props },
+    {
+      variant = "body",
+      weight,
+      color,
+      align,
+      familyRole,
+      textRole = "default",
+      numeric = "default",
+      style,
+      children,
+      ...props
+    },
     ref,
   ) {
     const { colors } = useAppTheme();
 
-    const config = variantConfig[variant];
+    const config = typography.variants[variant] as ResolvedVariantConfig;
+    const roleConfig = typography.roles[textRole] as ResolvedRoleConfig;
 
-    // Resolve color: theme key → semantic key → raw passthrough
     const resolvedColor = !color
       ? colors.text
       : color in colors
@@ -67,10 +91,15 @@ export const Typography = forwardRef<Text, TypographyProps>(
           ? semanticColors[color as SemanticColorKey]
           : color;
 
-    // Weight override replaces the variant's default font family
-    const resolvedFontFamily = weight
-      ? fontFamily[weight]
-      : config.fontFamily;
+    const resolvedWeight = weight ?? roleConfig.weight ?? config.defaultWeight;
+    const resolvedFamilyRole = familyRole ?? roleConfig.familyRole ?? config.defaultFamilyRole;
+    const resolvedFontFamily = roleConfig.fontFamily
+      ? roleConfig.fontFamily
+      : getFontFamilyForRole(resolvedFamilyRole, resolvedWeight);
+    const resolvedLetterSpacing = roleConfig.letterSpacing ?? config.letterSpacing;
+    const resolvedFontVariant = typography.numeric[numeric]
+      ? [...typography.numeric[numeric]]
+      : undefined;
 
     return (
       <Text
@@ -80,9 +109,11 @@ export const Typography = forwardRef<Text, TypographyProps>(
             fontFamily: resolvedFontFamily,
             fontSize: config.fontSize,
             lineHeight: config.lineHeight,
-            letterSpacing: config.letterSpacing,
+            letterSpacing: resolvedLetterSpacing,
             color: resolvedColor,
             textAlign: align,
+            fontVariant: resolvedFontVariant as FontVariant[] | undefined,
+            textTransform: roleConfig.textTransform ?? config.textTransform,
           },
           style,
         ]}
@@ -105,4 +136,4 @@ export const AnimatedTypography =
 // Types
 // ---------------------------------------------------------------------------
 
-export type { TypographyVariant, TypographyProps, FontWeight };
+export type { TypographyVariant, TypographyProps, TypographyWeight };
