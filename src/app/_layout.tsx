@@ -14,6 +14,7 @@ import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { ToastHost } from "@/components/ui/toast/toast-host";
 import { colors } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { queryClient } from "@/lib/query-client";
@@ -122,12 +123,7 @@ function RootNavigator() {
     <ThemeProvider value={navigationTheme}>
       <View style={{ flex: 1 }}>
         <StatusBar style={isDark ? "light" : "dark"} />
-        <Stack
-          screenOptions={{
-            animation: "fade",
-            animationDuration: 200,
-          }}
-        >
+        <Stack screenOptions={{ headerBackButtonDisplayMode: "minimal" }}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen
             name="(auth)"
@@ -150,6 +146,7 @@ function RootNavigator() {
         </Stack>
 
         <UnsafeAreaDebugOverlay />
+        <ToastHost />
       </View>
     </ThemeProvider>
   );

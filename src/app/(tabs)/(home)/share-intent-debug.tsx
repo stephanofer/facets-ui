@@ -35,14 +35,18 @@ function InfoRow({
       }}
     >
       <Typography
-        variant="small"
+        size={12}
+        lineHeight={16}
+        letterSpacing={0.8}
+        weight="medium"
         color="textMuted"
-        style={{ textTransform: "uppercase", letterSpacing: 0.5 }}
+        style={{ textTransform: "uppercase" }}
       >
         {label}
       </Typography>
       <Typography
-        variant="label"
+        size={14}
+        lineHeight={20}
         color="text"
         weight="bold"
         selectable
@@ -82,10 +86,10 @@ export default function ShareIntentDebugScreen() {
         entering={FadeInDown.duration(200)}
         style={{ gap: spacing.xs }}
       >
-        <Typography variant="h2" color="text" style={{ letterSpacing: -0.5 }}>
+        <Typography size={24} lineHeight={32} letterSpacing={-0.4} weight="bold" color="text">
           Shared Content
         </Typography>
-        <Typography variant="label" color="textMuted">
+        <Typography size={14} lineHeight={20} weight="medium" color="textMuted">
           This is a debug screen to verify share intent is working correctly.
         </Typography>
       </Animated.View>
@@ -124,9 +128,9 @@ export default function ShareIntentDebugScreen() {
       ) : null}
 
       {/* File metadata */}
-      {file ? (
+        {file ? (
         <View style={{ gap: spacing.md }}>
-          <Typography variant="subtitle" color="text" weight="bold">
+          <Typography size={18} lineHeight={26} color="text" weight="bold">
             File Details
           </Typography>
           <InfoRow label="File Name" value={file.fileName} delay={200} />
@@ -161,7 +165,7 @@ export default function ShareIntentDebugScreen() {
       {/* Meta information */}
       {shareIntent.meta ? (
         <View style={{ gap: spacing.md }}>
-          <Typography variant="subtitle" color="text" weight="bold">
+          <Typography size={18} lineHeight={26} color="text" weight="bold">
             Metadata
           </Typography>
           {Object.entries(shareIntent.meta).map(([key, value], index) => (
@@ -189,19 +193,23 @@ export default function ShareIntentDebugScreen() {
         }}
       >
         <Typography
-          variant="small"
+          size={12}
+          lineHeight={16}
+          letterSpacing={0.8}
+          weight="medium"
           color="textMuted"
-          style={{ textTransform: "uppercase", letterSpacing: 0.5 }}
+          style={{ textTransform: "uppercase" }}
         >
           Raw Share Intent (JSON)
         </Typography>
         <Typography
-          variant="small"
+          family="mono"
+          size={12}
+          lineHeight={16}
+          letterSpacing={0.1}
+          weight="medium"
           color="text"
           selectable
-          style={{
-            fontFamily: process.env.EXPO_OS === "ios" ? "Menlo" : "monospace",
-          }}
         >
           {JSON.stringify(shareIntent, null, 2)}
         </Typography>
@@ -221,7 +229,7 @@ export default function ShareIntentDebugScreen() {
             transform: [{ scale: pressed ? 0.97 : 1 }],
           })}
         >
-          <Typography variant="bodyMedium" color="#FFFFFF" weight="bold">
+          <Typography size={16} lineHeight={24} color="#FFFFFF" weight="bold">
             Dismiss & Reset
           </Typography>
         </Pressable>

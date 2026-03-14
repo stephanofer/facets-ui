@@ -22,11 +22,11 @@ export default function NotFoundScreen() {
           padding: spacing.xl,
         }}
       >
-        <Typography variant="h2" color="text">
+        <Typography size={24} lineHeight={32} letterSpacing={-0.4} weight="bold" color="text">
           Page not found
         </Typography>
         <Link href="/" asChild>
-          <Typography variant="bodyMedium" color="primary">
+          <Typography size={16} lineHeight={24} weight="medium" color="primary">
             Go to home
           </Typography>
         </Link>

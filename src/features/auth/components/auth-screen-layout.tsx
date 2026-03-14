@@ -1,3 +1,4 @@
+import { Image } from "expo-image";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import {
@@ -14,6 +15,8 @@ import { Icon } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
 import { spacing } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
+
+import authLogo from "@/assets/images/logo.png";
 
 import type { ReactNode } from "react";
 import type { ViewStyle } from "react-native";
@@ -32,7 +35,6 @@ interface AuthScreenLayoutProps {
   children: ReactNode;
   footer: ReactNode;
   headerVariant?: AuthHeaderVariant;
-  logoPlaceholderText?: string;
   registerProgress?: RegisterProgressConfig;
   backHref?: string;
   contentContainerStyle?: ViewStyle;
@@ -44,7 +46,6 @@ export function AuthScreenLayout({
   children,
   footer,
   headerVariant = "standard",
-  logoPlaceholderText = "FACETS",
   registerProgress,
   backHref,
   contentContainerStyle,
@@ -120,14 +121,11 @@ export function AuthScreenLayout({
                 </View>
 
                 <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-                  <Typography
-                    variant="label"
-                    color="primary"
-                    weight="bold"
-                    style={{ letterSpacing: 1.8 }}
-                  >
-                    {logoPlaceholderText}
-                  </Typography>
+                  <Image
+                    source={authLogo}
+                    contentFit="contain"
+                    style={{ width: 112, height: 32 }}
+                  />
                 </View>
 
                 <View style={{ width: 40, height: 40 }} />
@@ -148,12 +146,19 @@ export function AuthScreenLayout({
                   }}
                 >
                   {title ? (
-                    <Typography variant="h2" color="text" style={{ letterSpacing: -0.3 }}>
+                    <Typography
+                      size={24}
+                      lineHeight={32}
+                      letterSpacing={-0.4}
+                      weight="bold"
+                      color="text"
+                      family={headerVariant === "landing" ? "display" : "product"}
+                    >
                       {title}
                     </Typography>
                   ) : null}
                   {subtitle ? (
-                    <Typography variant="caption" color="textMuted" style={{ lineHeight: 20 }}>
+                    <Typography size={14} lineHeight={20} color="textMuted">
                       {subtitle}
                     </Typography>
                   ) : null}
@@ -188,7 +193,7 @@ function AuthRegisterProgress({ config }: AuthRegisterProgressProps) {
 
   return (
     <View style={{ gap: spacing.sm }}>
-      <Typography variant="small" color="textMuted" weight="medium">
+      <Typography size={12} lineHeight={16} letterSpacing={0.1} color="textMuted" weight="medium">
         {config.label ?? `Paso ${config.currentStep} de ${config.totalSteps}`}
       </Typography>
 

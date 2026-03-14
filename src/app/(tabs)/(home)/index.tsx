@@ -44,14 +44,18 @@ function ProfileCard({
       }}
     >
       <Typography
-        variant="small"
+        size={12}
+        lineHeight={16}
+        letterSpacing={0.8}
+        weight="medium"
         color="textMuted"
-        style={{ textTransform: "uppercase", letterSpacing: 0.5 }}
+        style={{ textTransform: "uppercase" }}
       >
         {label}
       </Typography>
       <Typography
-        variant="body"
+        size={16}
+        lineHeight={24}
         color="text"
         weight="bold"
         selectable
@@ -82,7 +86,7 @@ function StatusBadge({ status }: { status: string }) {
         alignSelf: "flex-start",
       }}
     >
-      <Typography variant="small" color={config.text} weight="bold">
+      <Typography size={12} lineHeight={16} letterSpacing={0.1} color={config.text} weight="bold">
         {config.label}
       </Typography>
     </View>
@@ -143,7 +147,7 @@ export default function HomeScreen() {
           gap: spacing.lg,
         }}
       >
-        <Typography variant="body" color="textMuted" align="center">
+        <Typography size={16} lineHeight={24} color="textMuted" align="center">
           No pudimos cargar tu perfil.
         </Typography>
         <Pressable
@@ -157,7 +161,7 @@ export default function HomeScreen() {
             transform: [{ scale: pressed ? 0.97 : 1 }],
           })}
         >
-          <Typography variant="bodyMedium" color="#FFFFFF" weight="bold">
+          <Typography size={16} lineHeight={24} color="#FFFFFF" weight="bold">
             Reintentar
           </Typography>
         </Pressable>
@@ -172,7 +176,7 @@ export default function HomeScreen() {
             opacity: pressed ? 0.7 : 1,
           })}
         >
-          <Typography variant="label" color="textMuted" weight="bold">
+          <Typography size={14} lineHeight={20} color="textMuted" weight="bold">
             Volver al acceso
           </Typography>
         </Pressable>
@@ -207,7 +211,7 @@ export default function HomeScreen() {
       <Animated.View entering={FadeInDown.duration(200).delay(40)} style={{ gap: spacing.xs }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
           <StatusBadge status={displayUser?.status ?? "ACTIVE"} />
-          <Typography variant="label" color="textMuted">
+          <Typography size={14} lineHeight={20} weight="medium" color="textMuted">
             Plan {displayUser?.plan.name}
           </Typography>
         </View>
@@ -215,7 +219,7 @@ export default function HomeScreen() {
 
       {/* Profile info cards */}
       <View style={{ gap: spacing.md }}>
-        <Typography variant="subtitle" color="text" weight="bold">
+        <Typography size={18} lineHeight={26} color="text" weight="bold">
           Tu perfil
         </Typography>
 
@@ -246,7 +250,7 @@ export default function HomeScreen() {
             transform: [{ scale: pressed ? 0.97 : 1 }],
           })}
         >
-          <Typography variant="bodyMedium" color="#EF4444" weight="bold">
+          <Typography size={16} lineHeight={24} color="#EF4444" weight="bold">
             {logout.isPending ? "Cerrando sesión..." : "Cerrar sesión"}
           </Typography>
         </Pressable>

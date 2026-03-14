@@ -1,13 +1,19 @@
-import { BellIcon } from "phosphor-react-native";
-import { CalendarBlankIcon } from "phosphor-react-native";
-import { CameraIcon } from "phosphor-react-native";
-import { CaretLeftIcon } from "phosphor-react-native";
-import { CaretRightIcon } from "phosphor-react-native";
-import { EyeIcon } from "phosphor-react-native";
-import { EyeSlashIcon } from "phosphor-react-native";
-import { ImageIcon } from "phosphor-react-native";
-import { TrashIcon } from "phosphor-react-native";
-import { XIcon } from "phosphor-react-native";
+import {
+  BellIcon,
+  CalendarBlankIcon,
+  CameraIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
+  CheckCircleIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  ImageIcon,
+  InfoIcon,
+  TrashIcon,
+  WarningCircleIcon,
+  XCircleIcon,
+  XIcon,
+} from "phosphor-react-native";
 
 import { useAppTheme } from "@/hooks/use-app-theme";
 
@@ -27,11 +33,15 @@ const iconRegistry = {
   Camera: CameraIcon,
   CaretLeft: CaretLeftIcon,
   CaretRight: CaretRightIcon,
+  CheckCircle: CheckCircleIcon,
   Eye: EyeIcon,
   EyeSlash: EyeSlashIcon,
   Image: ImageIcon,
+  Info: InfoIcon,
   Trash: TrashIcon,
+  WarningCircle: WarningCircleIcon,
   X: XIcon,
+  XCircle: XCircleIcon,
 } as const;
 
 // ---------------------------------------------------------------------------

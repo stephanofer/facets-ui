@@ -3,58 +3,33 @@ import { Text } from "react-native";
 import Animated from "react-native-reanimated";
 
 import {
-  getFontFamilyForRole,
+  resolveTypographyFontFamily,
   semanticColors,
   typography,
 } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 
-import type { FontVariant, TextProps, TextStyle } from "react-native";
+import type { FontVariant, TextProps } from "react-native";
 import type {
   SemanticColorKey,
   ThemeColorKey,
-  TypographyFamilyRole,
+  TypographyFamily,
   TypographyNumeric,
-  TypographyRole,
-  TypographyVariant,
   TypographyWeight,
 } from "@/constants/theme";
-
-type ResolvedVariantConfig = {
-  fontSize: number;
-  lineHeight: number;
-  letterSpacing: number;
-  defaultFamilyRole: TypographyFamilyRole;
-  defaultWeight: TypographyWeight;
-  textTransform?: TextStyle["textTransform"];
-};
-
-type ResolvedRoleConfig = {
-  familyRole?: TypographyFamilyRole;
-  weight?: TypographyWeight;
-  letterSpacing?: number;
-  textTransform?: TextStyle["textTransform"];
-  fontFamily?: string;
-};
 
 // ---------------------------------------------------------------------------
 // Props
 // ---------------------------------------------------------------------------
 
 interface TypographyProps extends TextProps {
-  /** Predefined text style — pick the right one for the context */
-  variant?: TypographyVariant;
-  /** Override the variant's default font weight */
+  family?: TypographyFamily;
+  size?: number;
+  lineHeight?: number;
+  letterSpacing?: number;
   weight?: TypographyWeight;
-  /** Theme color key, semantic color key, or raw color string */
   color?: ThemeColorKey | SemanticColorKey | (string & {});
-  /** Text alignment shorthand */
   align?: "left" | "center" | "right";
-  /** Sanctioned family override. Display is ONLY for low-density emphasis surfaces. */
-  familyRole?: TypographyFamilyRole;
-  /** Approved semantic roles for governed exceptions. */
-  textRole?: TypographyRole;
-  /** Approved numeric rendering mode. */
   numeric?: TypographyNumeric;
 }
 
@@ -65,12 +40,13 @@ interface TypographyProps extends TextProps {
 export const Typography = forwardRef<Text, TypographyProps>(
   function Typography(
     {
-      variant = "body",
+      family,
+      size,
+      lineHeight,
+      letterSpacing,
       weight,
       color,
       align,
-      familyRole,
-      textRole = "default",
       numeric = "default",
       style,
       children,
@@ -80,9 +56,6 @@ export const Typography = forwardRef<Text, TypographyProps>(
   ) {
     const { colors } = useAppTheme();
 
-    const config = typography.variants[variant] as ResolvedVariantConfig;
-    const roleConfig = typography.roles[textRole] as ResolvedRoleConfig;
-
     const resolvedColor = !color
       ? colors.text
       : color in colors
@@ -91,12 +64,15 @@ export const Typography = forwardRef<Text, TypographyProps>(
           ? semanticColors[color as SemanticColorKey]
           : color;
 
-    const resolvedWeight = weight ?? roleConfig.weight ?? config.defaultWeight;
-    const resolvedFamilyRole = familyRole ?? roleConfig.familyRole ?? config.defaultFamilyRole;
-    const resolvedFontFamily = roleConfig.fontFamily
-      ? roleConfig.fontFamily
-      : getFontFamilyForRole(resolvedFamilyRole, resolvedWeight);
-    const resolvedLetterSpacing = roleConfig.letterSpacing ?? config.letterSpacing;
+    const resolvedWeight = weight ?? "regular";
+    const resolvedFamily = family ?? "product";
+    const resolvedFontFamily = resolveTypographyFontFamily(
+      resolvedFamily,
+      resolvedWeight,
+    );
+    const resolvedFontSize = size ?? 16;
+    const resolvedLineHeight = lineHeight ?? Math.round(resolvedFontSize * 1.4);
+    const resolvedLetterSpacing = letterSpacing ?? 0;
     const resolvedFontVariant = typography.numeric[numeric]
       ? [...typography.numeric[numeric]]
       : undefined;
@@ -107,13 +83,12 @@ export const Typography = forwardRef<Text, TypographyProps>(
         style={[
           {
             fontFamily: resolvedFontFamily,
-            fontSize: config.fontSize,
-            lineHeight: config.lineHeight,
+            fontSize: resolvedFontSize,
+            lineHeight: resolvedLineHeight,
             letterSpacing: resolvedLetterSpacing,
             color: resolvedColor,
             textAlign: align,
             fontVariant: resolvedFontVariant as FontVariant[] | undefined,
-            textTransform: roleConfig.textTransform ?? config.textTransform,
           },
           style,
         ]}
@@ -136,4 +111,4 @@ export const AnimatedTypography =
 // Types
 // ---------------------------------------------------------------------------
 
-export type { TypographyVariant, TypographyProps, TypographyWeight };
+export type { TypographyProps, TypographyWeight };

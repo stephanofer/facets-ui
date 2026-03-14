@@ -30,14 +30,18 @@ function ProfileInfoRow({ label, value }: { label: string; value: string }) {
       }}
     >
       <Typography
-        variant="small"
+        size={12}
+        lineHeight={16}
+        letterSpacing={0.8}
+        weight="medium"
         color="textMuted"
-        style={{ textTransform: "uppercase", letterSpacing: 0.6 }}
+        style={{ textTransform: "uppercase" }}
       >
         {label}
       </Typography>
       <Typography
-        variant="bodyMedium"
+        size={16}
+        lineHeight={24}
         color="text"
         weight="bold"
         selectable
@@ -122,11 +126,19 @@ export default function ProfileScreen() {
         </Link>
 
         <View style={{ alignItems: "center", gap: spacing.xs }}>
-          <Typography variant="h2" color="text" align="center">
+          <Typography
+            size={24}
+            lineHeight={32}
+            letterSpacing={-0.4}
+            weight="bold"
+            color="text"
+            align="center"
+          >
             {fullName || "Usuario"}
           </Typography>
           <Typography
-            variant="body"
+            size={16}
+            lineHeight={24}
             color="textMuted"
             selectable
             align="center"

@@ -119,7 +119,9 @@ function SheetAction({
         color={destructive ? "#BE123C" : colors.textMuted}
       />
       <Typography
-        variant="h3"
+        size={20}
+        lineHeight={28}
+        letterSpacing={-0.25}
         color={destructive ? "#BE123C" : "text"}
         weight="medium"
       >
@@ -211,7 +213,10 @@ export function ProfileAvatarSheetContent({
       >
         <View style={{ flex: 1 }} />
         <Typography
-          variant="h1"
+          size={30}
+          lineHeight={38}
+          letterSpacing={-0.6}
+          weight="bold"
           color="text"
           align="center"
           style={{ flex: 2 }}

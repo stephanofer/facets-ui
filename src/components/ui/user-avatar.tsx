@@ -51,9 +51,11 @@ export function UserAvatar({ size, name, uri }: UserAvatarProps) {
       }}
     >
       <Typography
-        variant="h3"
+        family="product"
+        size={size * 0.34}
+        lineHeight={size * 0.4}
+        weight="semibold"
         color="text"
-        style={{ fontSize: size * 0.34, lineHeight: size * 0.4 }}
       >
         {initials || "U"}
       </Typography>

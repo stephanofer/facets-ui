@@ -4,7 +4,7 @@ import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 import { Icon } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
-import { fontFamily, radius, spacing } from "@/constants/theme";
+import { radius, spacing, typography } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 
 import type { TextInputProps } from "react-native";
@@ -59,7 +59,9 @@ export const FormInput = forwardRef<TextInput, FormInputProps>(
         >
           <View style={{ flex: 1 }}>
             <Typography
-              variant="small"
+              size={12}
+              lineHeight={16}
+              weight="medium"
               color={hasError ? "#EF4444" : "textMuted"}
               style={{ marginBottom: 2 }}
             >
@@ -71,8 +73,7 @@ export const FormInput = forwardRef<TextInput, FormInputProps>(
               secureTextEntry={isPassword ? !isPasswordVisible : undefined}
               style={[
                 {
-                  fontFamily: fontFamily.medium,
-                  fontSize: 16,
+                  ...typography.native.controlText,
                   color: colors.text,
                   padding: 0,
                   height: 24,
@@ -104,7 +105,9 @@ export const FormInput = forwardRef<TextInput, FormInputProps>(
         {hasError && (
           <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(100)}>
             <Typography
-              variant="small"
+              size={12}
+              lineHeight={16}
+              weight="medium"
               color="#EF4444"
               style={{ paddingLeft: spacing.xs }}
             >

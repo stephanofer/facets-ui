@@ -1,6 +1,6 @@
 import { NativeTabs } from "expo-router/unstable-native-tabs";
 
-import { colors, fontFamily } from "@/constants/theme";
+import { colors, typography } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 
 export default function TabsLayout() {
@@ -10,9 +10,7 @@ export default function TabsLayout() {
     <NativeTabs
       backgroundColor={isDark ? colors.dark.card : colors.light.card}
       tintColor={isDark ? colors.dark.primary : colors.light.primary}
-      labelStyle={{
-        fontFamily: fontFamily.medium,
-      }}
+      labelStyle={typography.native.tabLabel}
       iconColor={{
         default: isDark ? colors.dark.textMuted : colors.light.textMuted,
         selected: isDark ? colors.dark.primary : colors.light.primary,

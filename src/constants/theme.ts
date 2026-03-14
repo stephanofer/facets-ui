@@ -10,12 +10,12 @@ export const colors = {
     border: "rgba(0, 0, 0, 0.06)",
   },
   dark: {
-    primary: "#5EEACD",
+    primary: "#d4ef5c",
     secondary: "#8B5CF6",
     accent: "#38BDF8",
-    background: "#0A0E17",
+    background: "#000000",
     card: "#151C2C",
-    text: "#F1F5F9",
+    text: "#FFFFFF",
     textMuted: "#64748B",
     border: "rgba(255, 255, 255, 0.06)",
   },
@@ -62,169 +62,68 @@ export const fontFamily = {
 } as const;
 
 export type TypographyWeight = "regular" | "medium" | "semibold" | "bold";
-export type TypographyFamilyRole = "product" | "display";
+export type TypographyFamily = "product" | "display" | "mono";
 export type TypographyNumeric = "default" | "tabular";
-export type TypographyRole =
-  | "default"
-  | "brandMark"
-  | "avatarInitials"
-  | "debugMonospace";
 
-type TypographyVariantConfig = {
-  fontSize: number;
-  lineHeight: number;
-  letterSpacing: number;
-  defaultFamilyRole: TypographyFamilyRole;
-  defaultWeight: TypographyWeight;
-  textTransform?: "uppercase";
-};
-
-type TypographyRoleConfig = {
-  familyRole?: TypographyFamilyRole;
-  weight?: TypographyWeight;
-  letterSpacing?: number;
-  textTransform?: "uppercase";
-  fontFamily?: string;
-};
+const typographyFamilyMap = {
+  product: {
+    regular: fontFamily.interRegular,
+    medium: fontFamily.interMedium,
+    semibold: fontFamily.interSemibold,
+    bold: fontFamily.interBold,
+  },
+  display: {
+    medium: fontFamily.clashMedium,
+    semibold: fontFamily.clashSemibold,
+  },
+  mono: {
+    regular: fontFamily.debugMonospace,
+    medium: fontFamily.debugMonospace,
+    semibold: fontFamily.debugMonospace,
+    bold: fontFamily.debugMonospace,
+  },
+} as const;
 
 export const typography = {
-  familyRoles: {
-    product: {
-      regular: fontFamily.interRegular,
-      medium: fontFamily.interMedium,
-      semibold: fontFamily.interSemibold,
-      bold: fontFamily.interBold,
-    },
-    display: {
-      medium: fontFamily.clashMedium,
-      semibold: fontFamily.clashSemibold,
-    },
-  },
-  variants: {
-    h1: {
-      fontSize: 30,
-      lineHeight: 38,
-      letterSpacing: -0.6,
-      defaultFamilyRole: "product",
-      defaultWeight: "bold",
-    },
-    h2: {
-      fontSize: 24,
-      lineHeight: 32,
-      letterSpacing: -0.4,
-      defaultFamilyRole: "product",
-      defaultWeight: "bold",
-    },
-    h3: {
-      fontSize: 20,
-      lineHeight: 28,
-      letterSpacing: -0.25,
-      defaultFamilyRole: "product",
-      defaultWeight: "bold",
-    },
-    subtitle: {
-      fontSize: 18,
-      lineHeight: 26,
-      letterSpacing: 0,
-      defaultFamilyRole: "product",
-      defaultWeight: "medium",
-    },
-    body: {
-      fontSize: 16,
-      lineHeight: 24,
-      letterSpacing: 0,
-      defaultFamilyRole: "product",
-      defaultWeight: "regular",
-    },
-    bodyMedium: {
-      fontSize: 16,
-      lineHeight: 24,
-      letterSpacing: 0,
-      defaultFamilyRole: "product",
-      defaultWeight: "medium",
-    },
-    label: {
-      fontSize: 14,
-      lineHeight: 20,
-      letterSpacing: 0,
-      defaultFamilyRole: "product",
-      defaultWeight: "medium",
-    },
-    caption: {
-      fontSize: 14,
-      lineHeight: 20,
-      letterSpacing: 0,
-      defaultFamilyRole: "product",
-      defaultWeight: "regular",
-    },
-    small: {
-      fontSize: 12,
-      lineHeight: 16,
-      letterSpacing: 0.1,
-      defaultFamilyRole: "product",
-      defaultWeight: "medium",
-    },
-    eyebrow: {
-      fontSize: 12,
-      lineHeight: 16,
-      letterSpacing: 0.8,
-      defaultFamilyRole: "product",
-      defaultWeight: "medium",
-      textTransform: "uppercase",
-    },
-  } satisfies Record<string, TypographyVariantConfig>,
-  roles: {
-    default: {},
-    brandMark: {
-      familyRole: "display",
-      weight: "semibold",
-      letterSpacing: 1.8,
-      textTransform: "uppercase",
-    },
-    avatarInitials: {
-      familyRole: "product",
-      weight: "semibold",
-    },
-    debugMonospace: {
-      fontFamily: fontFamily.debugMonospace,
-    },
-  } satisfies Record<TypographyRole, TypographyRoleConfig>,
   native: {
     controlText: {
       fontFamily: fontFamily.interMedium,
       fontSize: 16,
       lineHeight: 24,
+      letterSpacing: 0,
     },
     tabLabel: {
       fontFamily: fontFamily.interMedium,
       fontSize: 13,
       lineHeight: 18,
+      letterSpacing: 0,
     },
   },
   numeric: {
     default: undefined,
-    tabular: ["tabular-nums"],
+    tabular: ["tabular-nums"] as const,
   },
 } as const;
 
-export type TypographyVariant = keyof typeof typography.variants;
-
-const displayWeightMap: Record<TypographyWeight, keyof typeof typography.familyRoles.display> = {
+const displayWeightMap: Record<
+  TypographyWeight,
+  keyof typeof typographyFamilyMap.display
+> = {
   regular: "medium",
   medium: "medium",
   semibold: "semibold",
   bold: "semibold",
 };
 
-export function getFontFamilyForRole(
-  role: TypographyFamilyRole,
+export function resolveTypographyFontFamily(
+  family: TypographyFamily,
   weight: TypographyWeight,
 ) {
-  if (role === "display") {
-    return typography.familyRoles.display[displayWeightMap[weight]];
+  if (family === "display") {
+    return typographyFamilyMap.display[displayWeightMap[weight]];
   }
 
-  return typography.familyRoles.product[weight];
+  return typographyFamilyMap[family][weight];
 }
 
 export type ThemeColors = {

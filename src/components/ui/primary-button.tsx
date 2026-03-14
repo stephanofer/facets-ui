@@ -2,8 +2,8 @@ import * as Haptics from "expo-haptics";
 import { ActivityIndicator, Pressable } from "react-native";
 
 import { Typography } from "@/components/ui/typography";
-import { useAppTheme } from "@/hooks/use-app-theme";
 import { radius } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/use-app-theme";
 
 interface PrimaryButtonProps {
   title: string;
@@ -73,10 +73,10 @@ export function PrimaryButton({
         />
       ) : (
         <Typography
-          variant="bodyMedium"
-          color={isPrimary ? "#FFFFFF" : colors.text}
-          weight="bold"
-          style={{ letterSpacing: 0.2 }}
+          size={16}
+          lineHeight={24}
+          color={isPrimary ? "#000000" : colors.text}
+          weight="semibold"
         >
           {title}
         </Typography>

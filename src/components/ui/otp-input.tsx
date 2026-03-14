@@ -17,7 +17,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { AnimatedTypography, Typography } from "@/components/ui/typography";
-import { fontFamily, radius, spacing } from "@/constants/theme";
+import { radius, spacing, typography } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 
 const OTP_LENGTH = 6;
@@ -139,7 +139,7 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
           opacity: 0,
           height: 1,
           width: 1,
-          fontFamily: fontFamily.medium,
+          ...typography.native.controlText,
           // Position off-screen to avoid visual artifacts on Android
           left: -1000,
         }}
@@ -197,11 +197,13 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
               >
                 {isFilled ? (
                   <AnimatedTypography
-                    variant="h2"
+                    size={24}
+                    lineHeight={32}
+                    weight="semibold"
+                    numeric="tabular"
                     entering={FadeIn.duration(100)}
                     style={{
                       color: colors.text,
-                      fontVariant: ["tabular-nums"],
                     }}
                   >
                     {digit}
@@ -238,7 +240,7 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
           }}
         >
           <ActivityIndicator size="small" color={colors.primary} />
-          <Typography variant="label" color="textMuted">
+          <Typography size={14} lineHeight={20} weight="medium" color="textMuted">
             Verificando...
           </Typography>
         </Animated.View>
@@ -246,12 +248,14 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
 
       {/* Error message */}
       {error && !disabled && (
-        <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(100)}>
-          <Typography
-            variant="label"
-            color="#EF4444"
-            selectable
-            align="center"
+          <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(100)}>
+            <Typography
+              size={14}
+              lineHeight={20}
+              weight="medium"
+              color="#EF4444"
+              selectable
+              align="center"
           >
             {error}
           </Typography>
@@ -261,7 +265,13 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
       {/* Tap to focus hint — only when not focused and no code entered */}
       {!isFocused && code.length === 0 && !disabled && !error && (
         <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(100)}>
-          <Typography variant="small" color="textMuted" align="center">
+          <Typography
+            size={12}
+            lineHeight={16}
+            weight="medium"
+            color="textMuted"
+            align="center"
+          >
             Tocá para ingresar el código
           </Typography>
         </Animated.View>

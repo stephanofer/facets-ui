@@ -128,9 +128,11 @@ export default function VerifyEmailScreen() {
       >
         {cooldown > 0 ? (
           <Typography
-            variant="label"
+            size={14}
+            lineHeight={20}
+            weight="medium"
             color="textMuted"
-            style={{ fontVariant: ["tabular-nums"] }}
+            numeric="tabular"
           >
             Reenviar código en {cooldown}s
           </Typography>
@@ -144,12 +146,12 @@ export default function VerifyEmailScreen() {
             {resendVerification.isPending ? (
               <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
                 <ActivityIndicator size="small" color={colors.primary} />
-                <Typography variant="label" color="primary" weight="bold">
+                <Typography size={14} lineHeight={20} color="primary" weight="bold">
                   Enviando...
                 </Typography>
               </View>
             ) : (
-              <Typography variant="label" color="primary" weight="bold">
+              <Typography size={14} lineHeight={20} color="primary" weight="bold">
                 Reenviar código
               </Typography>
             )}
@@ -159,7 +161,7 @@ export default function VerifyEmailScreen() {
         {/* Resend success confirmation */}
         {resendSuccess && (
           <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(200)}>
-            <Typography variant="small" color="#22C55E">
+            <Typography size={12} lineHeight={16} letterSpacing={0.1} color="#22C55E" weight="medium">
               ¡Código reenviado!
             </Typography>
           </Animated.View>

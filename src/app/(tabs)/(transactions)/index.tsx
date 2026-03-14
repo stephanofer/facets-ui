@@ -20,7 +20,7 @@ export default function TransactionsScreen() {
         paddingBottom: insets.bottom + spacing.xl,
       }}
     >
-      <Typography variant="body" color="textMuted" align="center">
+      <Typography size={16} lineHeight={24} color="textMuted" align="center">
         Transactions will appear here
       </Typography>
     </ScrollView>

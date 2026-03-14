@@ -136,7 +136,9 @@ export default function RegisterPasswordScreen() {
 
       {serverError !== "" && (
         <Typography
-          variant="label"
+          size={14}
+          lineHeight={20}
+          weight="medium"
           color="#EF4444"
           selectable
           align="center"
