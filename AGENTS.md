@@ -383,79 +383,77 @@ React Hook Form + Zod resolver. One pattern everywhere.
 
 ## Typography
 
-Single font family: **Satoshi** (Regular, Medium, Bold). Embedded via `expo-font` config plugin — available immediately at app start, no `useFonts` hook needed.
+Dual-font system: **Inter + Clash Display**. Inter is the default product/system font. Clash Display is a governed display font for selective low-density emphasis only. Fonts are embedded via `expo-font` config plugin — no `useFonts` hook.
 
 ### Rules
 
-- ALWAYS use the `Typography` component from `@/components/ui/typography`. NEVER use raw `<Text>` for visible user-facing text.
+- ALWAYS use `Typography` / `AnimatedTypography` from `@/components/ui/typography` for visible user-facing text.
+- NEVER use raw `<Text>` for normal product copy.
 - NEVER use `useFonts` hook. Fonts are embedded natively via config plugin.
-- NEVER use `fontWeight` style prop to control boldness. Use `fontFamily` directly (`Satoshi-Bold`, not `fontWeight: '700'`).
-- Font family names are **identical on iOS and Android** — no `Platform.select` needed.
-- For `TextInput`, apply `fontFamily` from `fontFamily` constant in `@/constants/theme`.
-- For Reanimated animations, use `AnimatedTypography` from the same file.
+- NEVER use `fontWeight` style prop to control typography weight. Use semantic `variant`, `weight`, `familyRole`, or `textRole`.
+- Inter is the DEFAULT for forms, buttons, navigation labels, helper text, legal/help copy, dense data, monetary surfaces, OTP digits, and reusable product UI.
+- Clash Display is ALLOWED only through governed semantic control points (`familyRole="display"` or `textRole="brandMark"`) on low-density hero/brand surfaces.
+- Clash Display is FORBIDDEN on dense financial data, forms, entered values, tab labels, compact navigation, helper text, legal/support copy, and critical monetary/comparison surfaces.
+- Native text surfaces that cannot use `Typography` directly MUST consume centralized tokens from `@/constants/theme` (`typography.native.controlText`, `typography.native.tabLabel`, `fontFamily.debugMonospace`).
+- For numeric alignment, use `numeric="tabular"`. DO NOT repeat inline `fontVariant` styling.
 
-### Font Families
+### Font Tokens
 
-| Constant               | Value              | Use                       |
-| ---------------------- | ------------------ | ------------------------- |
-| `fontFamily.regular`   | `Satoshi-Regular`  | Body text, captions       |
-| `fontFamily.medium`    | `Satoshi-Medium`   | Labels, emphasized text   |
-| `fontFamily.bold`      | `Satoshi-Bold`     | Headings, amounts, CTAs   |
+| Token | Use |
+| ----- | --- |
+| `fontFamily.interRegular` | Default readable body copy |
+| `fontFamily.interMedium` | Labels, controls, emphasized product text |
+| `fontFamily.interSemibold` | Strong product emphasis |
+| `fontFamily.interBold` | Product headings and strong emphasis |
+| `fontFamily.clashMedium` | Optional display emphasis |
+| `fontFamily.clashSemibold` | Brand/display emphasis |
+| `fontFamily.debugMonospace` | Debug-only monospace exception |
 
-### Variant Scale
-
-| Variant        | Size | Weight  | Use case                       |
-| -------------- | ---- | ------- | ------------------------------ |
-| `h1`           | 30   | Bold    | Screen titles, hero numbers    |
-| `h2`           | 24   | Bold    | Section headers                |
-| `h3`           | 20   | Bold    | Card titles, subsections       |
-| `subtitle`     | 18   | Medium  | Subtitles, lead text           |
-| `body`         | 16   | Regular | Default body text              |
-| `bodyMedium`   | 16   | Medium  | Emphasized body text           |
-| `label`        | 14   | Medium  | Form labels, nav items         |
-| `caption`      | 14   | Regular | Secondary descriptions         |
-| `small`        | 12   | Medium  | Badges, tags, timestamps       |
-
-### Use `Typography` like this
+### Approved `Typography` API
 
 ```tsx
 <Typography variant="h1">Screen Title</Typography>
+<Typography variant="h2" familyRole="display">Auth Hero</Typography>
+<Typography variant="label" textRole="brandMark">FACETS</Typography>
+<Typography variant="label" numeric="tabular">Reenviar en 12s</Typography>
 <Typography variant="caption" color="textMuted">Secondary info</Typography>
-<Typography variant="body" weight="bold">Overridden weight</Typography>
-<Typography variant="h2" align="center">Centered</Typography>
-<Typography color="#EF4444">Raw color</Typography>
 ```
 
-### TextInput
+### Variant Scale
 
-Apply `fontFamily` directly from the constant:
+| Variant        | Size | Default weight | Use case |
+| -------------- | ---- | -------------- | -------- |
+| `h1`           | 30   | Bold           | Large product headings, hero titles |
+| `h2`           | 24   | Bold           | Section headers, auth titles |
+| `h3`           | 20   | Bold           | Card titles, subsections |
+| `subtitle`     | 18   | Medium         | Supporting lead text |
+| `body`         | 16   | Regular        | Default body text |
+| `bodyMedium`   | 16   | Medium         | Emphasized body text |
+| `label`        | 14   | Medium         | Form labels, buttons, nav items |
+| `caption`      | 14   | Regular        | Secondary/help text |
+| `small`        | 12   | Medium         | Compact supporting text |
+| `eyebrow`      | 12   | Medium         | Uppercase metadata labels |
 
-```tsx
-import { fontFamily } from "@/constants/theme";
+### Approved Escape Hatches
 
-<TextInput style={{ fontFamily: fontFamily.medium, fontSize: 16 }} />
-```
-
-### Animated Text
-
-Use `AnimatedTypography` for Reanimated entering/exiting/layout animations:
-
-```tsx
-import { AnimatedTypography } from "@/components/ui/typography";
-
-<AnimatedTypography variant="h2" entering={FadeIn.duration(200)}>
-  Animated Title
-</AnimatedTypography>
-```
+- `familyRole="display"` → sanctioned Clash usage for low-density hero/display titles only
+- `textRole="brandMark"` → FACETS wordmark / brand text
+- `textRole="avatarInitials"` → avatar initials without leaking display styling elsewhere
+- `textRole="debugMonospace"` → debug/developer payloads only
+- `numeric="tabular"` → OTP/countdowns/aligned digits
+- `typography.native.controlText` → `TextInput` and editable control text
+- `typography.native.tabLabel` → `NativeTabs` labels
 
 ### Do / Don't
 
-- DO use `<Typography variant="body">` for all visible text
-- DO use `fontFamily` constant for `TextInput` styles
+- DO keep product surfaces Inter-first
+- DO route display experimentation through sanctioned semantic props so it stays reversible
+- DO use `eyebrow` instead of repeating uppercase + tracking inline styles
 - DO use `AnimatedTypography` for animated text
-- DON'T use raw `<Text>` for user-facing text
-- DON'T use `fontWeight` to control font boldness — use `weight` prop or `fontFamily` constant
-- DON'T use `useFonts` hook — fonts are embedded via config plugin
+- DON'T hardcode `fontFamily` inline for normal UI
+- DON'T spread Clash across finance/product surfaces because it “looks cool”
+- DON'T use debug monospace outside developer/debug contexts
+- DON'T use inline `fontVariant` for numeric alignment
 
 ---
 
