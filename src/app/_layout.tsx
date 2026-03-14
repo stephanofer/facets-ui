@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
   DarkTheme,
   DefaultTheme,
@@ -10,7 +9,8 @@ import { Stack } from "expo-router/stack";
 import { ShareIntentProvider } from "expo-share-intent";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { View } from "react-native";
+import { useEffect } from "react";
+import { Platform, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -122,7 +122,16 @@ function RootNavigator() {
     <ThemeProvider value={navigationTheme}>
       <View style={{ flex: 1 }}>
         <StatusBar style={isDark ? "light" : "dark"} />
-        <Stack screenOptions={{ headerBackButtonDisplayMode: "minimal" }}>
+        <Stack
+          screenOptions={{
+            headerBackButtonDisplayMode: "minimal",
+            animation: Platform.select({
+              ios: "default",
+              android: "fade",
+              default: "default",
+            }),
+          }}
+        >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen
             name="(auth)"
