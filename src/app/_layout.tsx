@@ -14,9 +14,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors } from "@/constants/theme";
-import { SessionLockOverlay } from "@/features/auth/components/session-lock-overlay";
 import { useAuthBootstrap } from "@/features/auth/hooks/use-auth-bootstrap";
-import { useLocalAuthGuard } from "@/features/auth/hooks/use-local-auth-guard";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { queryClient } from "@/lib/query-client";
 import { AppToaster } from "@/lib/toast";
@@ -67,7 +65,6 @@ function UnsafeAreaDebugOverlay() {
 function RootNavigator() {
   const { isDark } = useAppTheme();
   const bootstrapStatus = useAuthStore((s) => s.bootstrapStatus);
-  const { retryUnlock } = useLocalAuthGuard();
 
   useAuthBootstrap();
 
@@ -150,8 +147,6 @@ function RootNavigator() {
           </Stack.Protected>
           <Stack.Screen name="+not-found" />
         </Stack>
-
-        <SessionLockOverlay onRetry={retryUnlock} />
 
         <UnsafeAreaDebugOverlay />
       </View>
