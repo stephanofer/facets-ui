@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { spacing } from "@/constants/theme";
 import { AuthScreenLayout } from "@/features/auth/components/auth-screen-layout";
+import { WelcomeStories } from "@/features/auth/components/welcome-stories";
 
 interface AuthWelcomeProps {
   onCreateAccount: () => void;
@@ -21,7 +22,7 @@ export function AuthWelcome({ onCreateAccount, onLogin }: AuthWelcomeProps) {
         </View>
       }
     >
-      <View style={{ flex: 1 }} />
+      <WelcomeStories />
     </AuthScreenLayout>
   );
 }
