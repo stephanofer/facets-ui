@@ -53,6 +53,7 @@ export default function RegisterEmailScreen() {
             autoComplete="email"
             textContentType="emailAddress"
             returnKeyType="done"
+            blurOnSubmit={false}
             onSubmitEditing={handleSubmit(onSubmit)}
           />
         )}

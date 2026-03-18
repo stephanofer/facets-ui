@@ -10,7 +10,7 @@ import { AuthScreenLayout } from "@/features/auth/components/auth-screen-layout"
 import { useRegister } from "@/features/auth/hooks/use-register";
 import { registerPasswordSchema } from "@/features/auth/schemas/auth-schemas";
 import { ApiError } from "@/lib/api-client";
-import { showErrorToast, showNetworkToast, showWarningToast } from "@/lib/toast";
+import { showRegisterFailureToast } from "@/lib/toast";
 import { useRegisterFlowStore } from "@/stores/register-flow-store";
 
 import type { RegisterPasswordForm } from "@/features/auth/types";
@@ -19,6 +19,7 @@ export default function RegisterPasswordScreen() {
   const confirmRef = useRef<TextInput>(null);
   const { firstName, lastName, email, setPassword } = useRegisterFlowStore();
   const register = useRegister();
+  const normalizedEmail = email.trim().toLowerCase();
 
   const {
     control,
@@ -29,10 +30,6 @@ export default function RegisterPasswordScreen() {
     defaultValues: { password: "", confirmPassword: "" },
   });
 
-  const showRegisterErrorToast = (title: string, description: string) => {
-    showErrorToast(title, description);
-  };
-
   const onSubmit = (data: RegisterPasswordForm) => {
     setPassword(data.password);
 
@@ -40,47 +37,50 @@ export default function RegisterPasswordScreen() {
       {
         firstName,
         lastName,
-        email,
+        email: normalizedEmail,
         password: data.password,
       },
       {
         onSuccess: () => {
-          // Go to OTP verification
+          router.dismissAll();
           router.push({
             pathname: "/(auth)/verify-email" as never,
-            params: { email, source: "register" },
+            params: {
+              email: normalizedEmail,
+            },
           });
         },
         onError: (error) => {
           if (error instanceof ApiError) {
             switch (error.code) {
               case "EMAIL_ALREADY_EXISTS":
-                showRegisterErrorToast(
-                  "No pudimos crear la cuenta",
+                showRegisterFailureToast(
                   "Este email ya esta registrado. Intenta iniciar sesion.",
                 );
                 break;
               case "VALIDATION_ERROR":
-                showRegisterErrorToast(
-                  "Revisa los datos",
+                showRegisterFailureToast(
                   error.details?.map((detail) => detail.message).join(". ") ??
                     error.message,
+                  { title: "Revisa los datos" },
                 );
                 break;
               case "RATE_LIMIT_EXCEEDED":
-                showWarningToast(
-                  "Demasiados intentos",
+                showRegisterFailureToast(
                   "Demasiados intentos. Esperá un momento e intentá de nuevo.",
+                  { title: "Demasiados intentos", tone: "warning" },
                 );
                 break;
               default:
-                showRegisterErrorToast(
-                  "Algo salio mal",
+                showRegisterFailureToast(
                   error.message || "Intenta de nuevo.",
+                  { title: "Algo salio mal" },
                 );
             }
           } else {
-            showNetworkToast("Verifica tu internet e intenta de nuevo.");
+            showRegisterFailureToast("Verifica tu internet e intenta de nuevo.", {
+              title: "Error de conexion",
+            });
           }
         },
       },
@@ -117,6 +117,7 @@ export default function RegisterPasswordScreen() {
             autoComplete="new-password"
             textContentType="newPassword"
             returnKeyType="next"
+            blurOnSubmit={false}
             onSubmitEditing={() => confirmRef.current?.focus()}
           />
         )}
@@ -136,6 +137,7 @@ export default function RegisterPasswordScreen() {
             autoComplete="new-password"
             textContentType="newPassword"
             returnKeyType="done"
+            blurOnSubmit={false}
             onSubmitEditing={handleSubmit(onSubmit)}
           />
         )}

@@ -22,32 +22,52 @@ import { useAppTheme } from "@/hooks/use-app-theme";
 
 const OTP_LENGTH = 6;
 
+export type OtpInputVisualState =
+  | { kind: "idle" }
+  | { kind: "verifying" }
+  | { kind: "error"; message: string }
+  | { kind: "blocked"; message: string };
+
 interface OtpInputProps {
   onComplete: (code: string) => void;
-  error?: string;
-  disabled?: boolean;
+  state?: OtpInputVisualState;
+  onChangeCode?: (code: string) => void;
 }
 
-export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
+const DEFAULT_OTP_STATE: OtpInputVisualState = { kind: "idle" };
+
+export function OtpInput({
+  onComplete,
+  state = DEFAULT_OTP_STATE,
+  onChangeCode,
+}: OtpInputProps) {
   const { colors, isDark } = useAppTheme();
   const [code, setCode] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const shakeX = useSharedValue(0);
   const cursorOpacity = useSharedValue(1);
-  const prevErrorRef = useRef(error);
+  const recoverableError = state.kind === "error" ? state.message : undefined;
+  const hasError = state.kind === "error" || state.kind === "blocked";
+  const isInteractive = state.kind === "idle" || state.kind === "error";
+  const prevErrorRef = useRef(recoverableError);
 
-  // Auto-focus on mount — use InteractionManager for reliability on Android
+  // Auto-focus whenever input becomes interactive
   useEffect(() => {
+    if (!isInteractive) {
+      inputRef.current?.blur();
+      return;
+    }
+
     const timer = setTimeout(() => {
       inputRef.current?.focus();
     }, 100);
     return () => clearTimeout(timer);
-  }, []);
+  }, [isInteractive]);
 
   // Blinking cursor animation
   useEffect(() => {
-    if (isFocused && code.length < OTP_LENGTH && !disabled) {
+    if (isFocused && code.length < OTP_LENGTH && isInteractive) {
       cursorOpacity.value = withRepeat(
         withSequence(
           withTiming(1, { duration: 0 }),
@@ -61,11 +81,11 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
     } else {
       cursorOpacity.value = 0;
     }
-  }, [isFocused, code.length, disabled, cursorOpacity]);
+  }, [isFocused, code.length, isInteractive, cursorOpacity]);
 
   // Shake + clear on error, then re-focus
   useEffect(() => {
-    if (error && error !== prevErrorRef.current) {
+    if (recoverableError && recoverableError !== prevErrorRef.current) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       shakeX.value = withSequence(
         withTiming(-8, { duration: 50 }),
@@ -79,8 +99,8 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
       // Re-focus after error so user can immediately type again
       setTimeout(() => inputRef.current?.focus(), 300);
     }
-    prevErrorRef.current = error;
-  }, [error, shakeX]);
+    prevErrorRef.current = recoverableError;
+  }, [recoverableError, shakeX]);
 
   const shakeStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: shakeX.value }],
@@ -92,11 +112,14 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
 
   const handleChange = useCallback(
     (text: string) => {
-      if (disabled) return;
+      if (!isInteractive) {
+        return;
+      }
 
       // Only allow digits
       const cleaned = text.replace(/\D/g, "").slice(0, OTP_LENGTH);
       setCode(cleaned);
+      onChangeCode?.(cleaned);
 
       // Haptic feedback per digit
       if (cleaned.length > code.length) {
@@ -110,14 +133,21 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
         onComplete(cleaned);
       }
     },
-    [onComplete, disabled, code.length],
+    [code.length, isInteractive, onChangeCode, onComplete],
   );
 
   const handlePress = () => {
-    if (!disabled) {
+    if (isInteractive) {
       inputRef.current?.focus();
     }
   };
+
+  const statusMessage =
+    state.kind === "verifying"
+      ? "Verificando..."
+      : undefined;
+
+  const showLoadingIndicator = state.kind === "verifying";
 
   return (
     <View style={{ gap: spacing.md }}>
@@ -132,7 +162,7 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
         textContentType="oneTimeCode"
         autoComplete="one-time-code"
         maxLength={OTP_LENGTH}
-        editable={!disabled}
+        editable={isInteractive}
         caretHidden
         style={{
           position: "absolute",
@@ -159,7 +189,7 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
         >
           {Array.from({ length: OTP_LENGTH }).map((_, index) => {
             const isFilled = index < code.length;
-            const isCurrent = index === code.length && isFocused && !disabled;
+            const isCurrent = index === code.length && isFocused && isInteractive;
             const digit = code[index] ?? "";
 
             return (
@@ -171,7 +201,7 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
                   borderRadius: radius.md,
                   borderCurve: "continuous",
                   borderWidth: isCurrent ? 2 : 1.5,
-                  borderColor: error
+                  borderColor: hasError
                     ? "#EF4444"
                     : isCurrent
                       ? colors.primary
@@ -193,6 +223,7 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
                       : "transparent",
                   alignItems: "center",
                   justifyContent: "center",
+                  opacity: state.kind === "blocked" ? 0.45 : 1,
                 }}
               >
                 {isFilled ? (
@@ -221,14 +252,14 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
                     ]}
                   />
                 ) : null}
-              </View>
-            );
-          })}
-        </Animated.View>
-      </Pressable>
+                </View>
+              );
+            })}
+          </Animated.View>
+        </Pressable>
 
-      {/* Loading state */}
-      {disabled && (
+      {/* State feedback */}
+      {(showLoadingIndicator || statusMessage) && (
         <Animated.View
           entering={FadeIn.duration(150)}
           exiting={FadeOut.duration(100)}
@@ -239,31 +270,34 @@ export function OtpInput({ onComplete, error, disabled }: OtpInputProps) {
             gap: spacing.sm,
           }}
         >
-          <ActivityIndicator size="small" color={colors.primary} />
-          <Typography size={14} lineHeight={20} weight="medium" color="textMuted">
-            Verificando...
-          </Typography>
+          {showLoadingIndicator ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : null}
+          {statusMessage ? (
+            <Typography size={14} lineHeight={20} weight="medium" color="textMuted" align="center">
+              {statusMessage}
+            </Typography>
+          ) : null}
         </Animated.View>
       )}
 
-      {/* Error message */}
-      {error && !disabled && (
-          <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(100)}>
-            <Typography
-              size={14}
-              lineHeight={20}
-              weight="medium"
-              color="#EF4444"
-              selectable
-              align="center"
+      {state.kind === "blocked" && (
+        <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(100)}>
+          <Typography
+            size={14}
+            lineHeight={20}
+            weight="medium"
+            color="#EF4444"
+            selectable
+            align="center"
           >
-            {error}
+            {state.message}
           </Typography>
         </Animated.View>
       )}
 
       {/* Tap to focus hint — only when not focused and no code entered */}
-      {!isFocused && code.length === 0 && !disabled && !error && (
+      {!isFocused && code.length === 0 && state.kind === "idle" && (
         <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(100)}>
           <Typography
             size={12}

@@ -10,7 +10,7 @@ import { AuthScreenLayout } from "@/features/auth/components/auth-screen-layout"
 import { useLogin } from "@/features/auth/hooks/use-login";
 import { loginSchema } from "@/features/auth/schemas/auth-schemas";
 import { ApiError } from "@/lib/api-client";
-import { showErrorToast, showNetworkToast, showWarningToast } from "@/lib/toast";
+import { showLoginFailureToast } from "@/lib/toast";
 
 import type { LoginRequest } from "@/features/auth/types";
 
@@ -22,18 +22,15 @@ export default function LoginScreen() {
     control,
     handleSubmit,
     formState: { errors },
-    getValues,
   } = useForm<LoginRequest>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
 
-  const showLoginErrorToast = (title: string, description: string) => {
-    showErrorToast(title, description);
-  };
-
   const onSubmit = (data: LoginRequest) => {
-    login.mutate(data, {
+    const normalizedEmail = data.email.trim().toLowerCase();
+
+    login.mutate({ ...data, email: normalizedEmail }, {
       onSuccess: () => {
         // Belt-and-suspenders: the root layout also watches authStatus,
         // but explicitly navigate here to avoid race conditions where
@@ -44,54 +41,52 @@ export default function LoginScreen() {
         if (error instanceof ApiError) {
           switch (error.code) {
             case "EMAIL_NOT_VERIFIED":
-              // User registered but never verified — send to OTP screen
+              router.dismissAll();
               router.push({
                 pathname: "/(auth)/verify-email" as never,
                 params: {
-                  email: getValues("email").trim().toLowerCase(),
-                  source: "login",
+                  email: normalizedEmail,
                 },
               });
-              break;
+              return;
             case "INVALID_CREDENTIALS":
-              showLoginErrorToast(
-                "No pudimos iniciar sesion",
+              showLoginFailureToast(
                 "Email o contrasena incorrectos.",
               );
               break;
             case "ACCOUNT_SUSPENDED":
-              showLoginErrorToast(
-                "No pudimos iniciar sesion",
+              showLoginFailureToast(
                 "Tu cuenta ha sido suspendida. Contacta soporte.",
               );
               break;
             case "ACCOUNT_DELETED":
-              showLoginErrorToast(
-                "No pudimos iniciar sesion",
+              showLoginFailureToast(
                 "Esta cuenta ya no existe.",
               );
               break;
             case "RATE_LIMIT_EXCEEDED":
-              showWarningToast(
-                "Demasiados intentos",
+              showLoginFailureToast(
                 "Demasiados intentos. Esperá un momento e intentá de nuevo.",
+                { title: "Demasiados intentos", tone: "warning" },
               );
               break;
             case "VALIDATION_ERROR":
-              showLoginErrorToast(
-                "Revisa los datos",
+              showLoginFailureToast(
                 error.details?.map((detail) => detail.message).join(". ") ??
                   error.message,
+                { title: "Revisa los datos" },
               );
               break;
             default:
-              showLoginErrorToast(
-                "Algo salio mal",
+              showLoginFailureToast(
                 error.message || "Intenta de nuevo.",
+                { title: "Algo salio mal" },
               );
           }
         } else {
-          showNetworkToast("Verifica tu internet e intenta de nuevo.");
+          showLoginFailureToast("Verifica tu internet e intenta de nuevo.", {
+            title: "Error de conexion",
+          });
         }
       },
     });
@@ -128,6 +123,7 @@ export default function LoginScreen() {
             autoComplete="email"
             textContentType="emailAddress"
             returnKeyType="next"
+            blurOnSubmit={false}
             onSubmitEditing={() => passwordRef.current?.focus()}
           />
         )}
@@ -147,6 +143,7 @@ export default function LoginScreen() {
             autoComplete="current-password"
             textContentType="password"
             returnKeyType="done"
+            blurOnSubmit={false}
             onSubmitEditing={handleSubmit(onSubmit)}
           />
         )}

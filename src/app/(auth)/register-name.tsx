@@ -53,6 +53,7 @@ export default function RegisterNameScreen() {
             autoCapitalize="words"
             autoCorrect={false}
             returnKeyType="next"
+            blurOnSubmit={false}
             onSubmitEditing={() => lastNameRef.current?.focus()}
           />
         )}
@@ -71,6 +72,7 @@ export default function RegisterNameScreen() {
             autoCapitalize="words"
             autoCorrect={false}
             returnKeyType="done"
+            blurOnSubmit={false}
             onSubmitEditing={handleSubmit(onSubmit)}
           />
         )}

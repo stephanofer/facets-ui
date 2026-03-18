@@ -5,6 +5,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Pressable,
+  ScrollView,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
@@ -37,6 +38,7 @@ interface AuthScreenLayoutProps {
   headerVariant?: AuthHeaderVariant;
   registerProgress?: RegisterProgressConfig;
   backHref?: string;
+  onBackPress?: () => void;
   contentContainerStyle?: ViewStyle;
 }
 
@@ -48,6 +50,7 @@ export function AuthScreenLayout({
   headerVariant = "standard",
   registerProgress,
   backHref,
+  onBackPress,
   contentContainerStyle,
 }: AuthScreenLayoutProps) {
   const insets = useSafeAreaInsets();
@@ -57,6 +60,11 @@ export function AuthScreenLayout({
   const handleBack = () => {
     if (process.env.EXPO_OS === "ios") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+
+    if (onBackPress) {
+      onBackPress();
+      return;
     }
 
     if (backHref) {
@@ -77,11 +85,18 @@ export function AuthScreenLayout({
           style={{ flex: 1 }}
         >
           <Animated.View entering={FadeIn.duration(250)} style={{ flex: 1 }}>
-            <View
+            <ScrollView
+              keyboardDismissMode="interactive"
+              keyboardShouldPersistTaps="handled"
+              contentInsetAdjustmentBehavior="automatic"
               style={{
                 flex: 1,
+              }}
+              contentContainerStyle={{
+                flexGrow: 1,
                 paddingTop: insets.top + spacing.md,
                 paddingHorizontal: spacing.xl,
+                paddingBottom: spacing.lg,
               }}
             >
               <View
@@ -165,8 +180,8 @@ export function AuthScreenLayout({
                 </View>
               ) : null}
 
-              <View style={[{ gap: spacing.lg }, contentContainerStyle]}>{children}</View>
-            </View>
+              <View style={[{ flexGrow: 1, gap: spacing.lg }, contentContainerStyle]}>{children}</View>
+            </ScrollView>
 
             <View
               style={{
