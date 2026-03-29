@@ -57,7 +57,6 @@
       ],
       [
         "expo-secure-store",
-
         {
           "faceIDPermission": "Permite a $(PRODUCT_NAME) acceder a Face ID para proteger tus datos.",
           "configureAndroidBackup": true
@@ -78,7 +77,10 @@
             "NSExtensionActivationSupportsImageWithMaxCount": 1,
             "NSExtensionActivationSupportsText": true
           },
-          "androidIntentFilters": ["text/*", "image/*"]
+          "androidIntentFilters": [
+            "text/*",
+            "image/*"
+          ]
         }
       ],
       "expo-image",
@@ -112,7 +114,8 @@
           "icon": "./assets/images/notification-icon.png",
           "color": "#ffffff"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
